@@ -20,6 +20,6 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.decks.show');
+        return view('livewire.decks.show')->layout('layouts.app', ['title' => $this->deck->name]);;
     }
 }
