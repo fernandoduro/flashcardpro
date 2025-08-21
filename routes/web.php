@@ -1,27 +1,21 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Livewire\Auth\Login;
-use App\Livewire\Auth\Register;
 use App\Livewire\Decks;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::view('/', 'welcome');
 
-// Guest Routes
-Route::middleware('guest')->group(function () {
-    Route::get('register', Register::class)->name('register');
-    Route::get('login', Login::class)->name('login');
-});
+Route::view('dashboard', 'dashboard')
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+
+Route::view('profile', 'profile')
+    ->middleware(['auth'])
+    ->name('profile');
 
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::get('/decks', Decks\Index::class)->name('decks.index');
-    // Add other protected routes here later
-
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -38,3 +32,5 @@ Route::get('/study/{deck}', function (\App\Models\Deck $deck) {
     return view('study.show', ['deck' => $deck]);
 })->middleware(['auth', 'verified'])->name('study.show');
 
+
+require __DIR__.'/auth.php';
