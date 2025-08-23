@@ -9,4 +9,9 @@ class DeckPolicy
     {
         return $user->id === $deck->user_id;
     }
+
+    public function delete(User $user, Deck $deck): bool
+    {
+        return $user->id === $deck->user_id;
+    }
 }

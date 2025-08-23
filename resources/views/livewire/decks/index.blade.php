@@ -20,6 +20,20 @@
                                         <span class="text-sm text-gray-500">{{ $deck->cards_count }} cards</span>
                                     </div>
                                 </a>
+
+                                <button wire:click="$dispatch('openEditModal', { deckId: {{ $deck->id }} })" class="text-gray-400 hover:text-indigo-600 group-hover:opacity-100 transition-opacity">
+                                    Edit
+                                </button>
+
+                                <button wire:click="$dispatch('openConfirmationModal', {
+                                        title: 'Delete Deck',
+                                        message: 'Are you sure you want to delete this deck? All cards within it will be unassigned from this deck.',
+                                        confirmAction: 'deleteDeck',
+                                        itemId: {{ $deck->id }}
+                                    })"
+                                        class="text-gray-400 hover:text-red-600 group-hover:opacity-100 transition-opacity">
+                                    Delete
+                                </button>
                             </li>
                         @empty
                             <p>You haven't created any decks yet.</p>
@@ -29,4 +43,11 @@
             </div>
         </div>
     </div>
+
+    {{-- Add the Floating Action Button --}}
+    <x-fab-link dispatch="openCreateModal" text="Add Deck" />
+
+    <livewire:decks.form/>
+    <livewire:components.confirmation-modal />
 </div>
+

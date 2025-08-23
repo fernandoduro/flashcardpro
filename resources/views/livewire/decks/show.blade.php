@@ -22,6 +22,20 @@
                             <li class="p-3 border rounded">
                                 <p class="font-semibold">{{ $card->question }}</p>
                                 <p class="text-gray-600">{{ $card->answer }}</p>
+                                <button wire:click="$dispatch('openEditCardModal', { cardId: {{ $card->id }} })"
+                                    class="text-gray-400 hover:text-indigo-600 group-hover:opacity-100 transition-opacity ml-4">
+                                    Edit
+                                </button>
+
+                                <button wire:click="$dispatch('openConfirmationModal', {
+                                    title: 'Remove Card',
+                                            message: 'Are you sure you want to remove this card from the deck?',
+                                            confirmAction: 'deleteCard',
+                                            itemId: {{ $card->id }}
+                                        })"
+                                        class="text-gray-400 hover:text-red-600 group-hover:opacity-100 ...">
+                                    Delete
+                                </button>
                             </li>
                         @endforeach
                     </ul>
@@ -29,4 +43,11 @@
             </div>
         </div>
     </div>
+
+    {{-- Add the Floating Action Button --}}
+    <x-fab-link dispatch="openCreateCardModal" text="Add Card" deckId="{{ $deck->id }}" />
+
+    <livewire:cards.form />
+    <livewire:components.confirmation-modal />
+
 </div>

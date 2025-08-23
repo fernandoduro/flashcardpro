@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Decks;
+use App\Livewire\Cards;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -16,6 +17,8 @@ Route::view('profile', 'profile')
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
     Route::get('/decks', Decks\Index::class)->name('decks.index');
+    Route::get('/decks/create', Decks\Form::class)->name('decks.form');
+    Route::get('/decks/{deck}/cards/create', Cards\Form::class)->name('decks.cards.form');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
