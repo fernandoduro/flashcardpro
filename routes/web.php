@@ -2,6 +2,7 @@
 
 use App\Livewire\Decks;
 use App\Livewire\Cards;
+use App\Livewire\Statistics;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -25,6 +26,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/decks', Decks\Index::class)->name('decks.index');
     Route::get('/decks/{deck}', Decks\Show::class)->name('decks.show');
     Route::view('profile', 'profile')->name('profile');
+    Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
 });
 
 Route::get('/study/{deck}', function (\App\Models\Deck $deck) {
