@@ -16,6 +16,14 @@
                             <li class="p-4 border rounded-lg hover:bg-gray-50">
                                 <a href="{{ route('decks.show', $deck) }}" class="block">
                                     <div class="flex justify-between items-center">
+                                        {{-- Cover Image --}}
+                                        @if ($deck->cover_image_path)
+                                            <img class="h-12 w-12 rounded-md object-cover flex-shrink-0" src="{{ asset('storage/' . $deck->cover_image_path) }}" alt="{{ $deck->name }}">
+                                        @else
+                                            <div class="h-12 w-12 bg-gray-200 rounded-md flex items-center justify-center flex-shrink-0">
+                                                <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2H5a2 2 0 00-2 2v2m14 0h-2M5 11H3" /></svg>
+                                            </div>
+                                        @endif
                                         <h3 class="text-lg font-bold">{{ $deck->name }}</h3>
                                         <span class="text-sm text-gray-500">{{ $deck->cards_count }} cards</span>
                                     </div>
