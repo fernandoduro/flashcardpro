@@ -87,8 +87,11 @@ class Form extends Component
         $dataToSave = [
             'name' => $validated['name'],
             'public' => $validated['isPublic'],
-            'cover_image_path' => $path,
         ];
+
+        if (!empty($path)) {
+            $dataToSave['cover_image_path'] = $path;
+        }
 
         if ($this->editingDeck) {
             // We are in EDIT mode

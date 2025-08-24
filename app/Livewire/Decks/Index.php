@@ -17,9 +17,18 @@ class Index extends Component
         // The list will refresh automatically
     }
 
+    
+    public function togglePin(int $deckId)
+    {
+        $deck = Deck::where('user_id', auth()->id())->findOrFail($deckId);
+        $deck->update(['is_pinned' => !$deck->is_pinned]);
+        // A re-render will be triggered automatically.
+    }
+
+
     public function render()
     {
-        $decks = auth()->user()->decks()->withCount('cards')->get();
+        $decks = auth()->user()->decks()->withCount('cards')->orderBy('is_pinned', 'desc')->get();
 
         return view('livewire.decks.index', [
             'decks' => $decks,
