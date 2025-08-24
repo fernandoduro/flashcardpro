@@ -45,11 +45,11 @@
                 {{-- 1. Total Studies Card --}}
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-lg font-medium text-gray-500">Total Study Sessions</h3>
-                    <p class="mt-2 text-5xl font-bold text-indigo-600">{{ $totalCompletedStudies }}</p>
+                    <p class="mt-2 text-5xl font-bold text-primary-600">{{ $totalCompletedStudies }}</p>
                     <p class="mt-1 text-sm text-gray-500">Completed sessions</p>
-                    <p class="mt-2 text-5xl font-bold text-indigo-600">{{ $totalQuestionsAnswered }}</p>
+                    <p class="mt-2 text-5xl font-bold text-primary-600">{{ $totalQuestionsAnswered }}</p>
                     <p class="mt-1 text-sm text-gray-500">Questons Answered</p>
-                    <p class="mt-2 text-5xl font-bold text-indigo-600">{{ ceil($percentageCorrect) }}%</p>
+                    <p class="mt-2 text-5xl font-bold text-primary-600">{{ ceil($percentageCorrect) }}%</p>
                     <p class="mt-1 text-sm text-gray-500">Win Rate</p>
                 </div>
 
@@ -75,7 +75,7 @@
                     @forelse ($deckStudyRanking as $rank)
                         <div class="mt-4 flex items-center justify-between py-2 border-b last:border-b-0">
                             <span class="text-gray-700 font-medium">{{ $rank->deck->name }}</span>
-                            <span class="font-bold text-indigo-600">{{ $rank->study_count }} sessions</span>
+                            <span class="font-bold text-primary-600">{{ $rank->study_count }} sessions</span>
                         </div>
                     @empty
                         <p class="mt-2 text-gray-600">You haven't completed any study sessions yet.</p>
