@@ -32,19 +32,20 @@
     x-init="initChart(@js($studiesPerDayChartData))"
 >
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h2 class="font-bold text-2xl text-gray-800 leading-tight">
             {{ __('My Statistics') }}
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-4">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {{-- Stat Cards Grid --}}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                 {{-- 1. Total Studies Card --}}
                 <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-lg font-medium text-gray-500">Total Study Sessions</h3>
+                    <h3 class="text-lg font-medium text-gray-500">Totals</h3>
+                    <hr class="my-4 border-t">
                     <p class="mt-2 text-5xl font-bold text-primary-600">{{ $totalCompletedStudies }}</p>
                     <p class="mt-1 text-sm text-gray-500">Completed sessions</p>
                     <p class="mt-2 text-5xl font-bold text-primary-600">{{ $totalQuestionsAnswered }}</p>

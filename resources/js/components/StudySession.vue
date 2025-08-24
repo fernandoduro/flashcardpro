@@ -1,73 +1,122 @@
 <template>
-    <div class="p-6 bg-white border-b border-gray-200 rounded-lg shadow-md max-w-2xl mx-auto">
-        <div v-if="!sessionFinished">
-            <div v-if="currentCard">
-                <div class="mb-4 flex justify-between items-center">
-                    <h2 class="text-xl font-bold">{{ deckName }}</h2>
-                    <span class="text-gray-500">{{ currentCardIndex + 1 }} / {{ cards.length }} cards</span>
+    <div class="max-w-2xl mx-auto">
+
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center p-10 bg-white rounded-lg shadow-md">
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-primary-500"></i>
+            <p class="mt-4 text-lg text-gray-600">Preparing your study session...</p>
+        </div>
+
+        <!-- Session Finished State -->
+        <div v-else-if="sessionFinished" class="text-center p-10 bg-white rounded-lg shadow-md">
+            <i class="fa-solid fa-circle-check text-6xl text-green-500"></i>
+            <h2 class="mt-4 text-3xl font-bold text-gray-800">Session Complete!</h2>
+            <p class="mt-2 text-lg text-gray-600">You got <span class="font-bold text-primary-600">{{ correctAnswers }}</span> out of <span class="font-bold">{{ cards.length }}</span> correct.</p>
+            <a :href="deckUrl" class="mt-6 inline-flex items-center px-6 py-3 bg-gray-700 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-gray-600">
+                Back to Deck
+            </a>
+        </div>
+
+        <!-- Main Study View -->
+        <div v-else-if="currentCard" class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <!-- Header with Progress Bar -->
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">{{ deck.name }}</h2>
+                    <span class="text-sm font-semibold text-gray-500">{{ currentCardIndex + 1 }} / {{ cards.length }}</span>
                 </div>
-                <div class="p-8 border rounded-lg text-center">
-                    <p class="text-2xl mb-6">{{ currentCard.question }}</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                    <div class="bg-primary-600 h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+                </div>
+            </div>
 
-                    <div v-if="!answerVisible">
-                        <button @click="revealAnswer" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Reveal Answer</button>
-                    </div>
+            <!-- Flashcard with Transition -->
+            <div class="p-8 sm:p-12 min-h-[20rem] flex flex-col justify-center items-center text-center">
+                <Transition name="fade" mode="out-in">
+                    <div :key="currentCard.id + (answerVisible ? '-ans' : '-q')" class="w-full">
+                        <!-- Question View -->
+                        <div v-if="!answerVisible">
+                            <p class="text-2xl sm:text-3xl text-gray-700">{{ currentCard.question }}</p>
+                            <button @click="revealAnswer" class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500">
+                                Reveal Answer
+                            </button>
+                        </div>
 
-                    <div v-else>
-                        <p class="text-3xl font-bold mb-8 text-green-600">{{ currentCard.answer }}</p>
-                        <div class="flex justify-center space-x-4">
-                            <button @click="recordResult(true)" class="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600">I got it right!</button>
-                            <button @click="recordResult(false)" class="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600">Maybe next time...</button>
+                        <!-- Answer View -->
+                        <div v-else>
+                            <p class="text-xl text-gray-500 mb-2">{{ currentCard.question }}</p>
+                            <p class="text-3xl sm:text-4xl font-bold text-green-600 mb-8">{{ currentCard.answer }}</p>
+                            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                                <button @click="recordResult(true)" class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600">
+                                    <i class="fa-solid fa-check mr-2"></i> I Got It Right
+                                </button>
+                                <button @click="recordResult(false)" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300">
+                                    <i class="fa-solid fa-xmark mr-2"></i> Maybe Next Time
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
-            <div v-else>
-                Loading...
+                </Transition>
             </div>
         </div>
-        <div v-else class="text-center">
-            <h2 class="text-2xl font-bold mb-4">Session Complete!</h2>
-            <p class="text-lg">You got {{ correctAnswers }} out of {{ cards.length }} correct.</p>
-            <a :href="deckUrl" class="mt-6 inline-block px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700">Back to Deck</a>
-        </div>
+
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 
 const props = defineProps({
     deck: Object,
 });
 
+const deckUrl = `/decks/${props.deck.id}`;
+
+// State
+const loading = ref(true);
 const cards = ref([]);
 const currentCardIndex = ref(0);
-const currentCard = ref(null);
 const answerVisible = ref(false);
 const sessionFinished = ref(false);
 const correctAnswers = ref(0);
 const studyId = ref(null);
 
-const deckName = props.deck.name;
-const deckUrl = `/decks/${props.deck.id}`;
+// Computed Properties
+const currentCard = computed(() => cards.value[currentCardIndex.value]);
+const progressPercentage = computed(() => ((currentCardIndex.value + 1) / cards.value.length) * 100);
 
-onMounted(async () => {
-    // 1. Start a new study session
-    const sessionResponse = await axios.post('/api/studies', { deck_id: props.deck.id });
-    studyId.value = sessionResponse.data.study_id;
-
-    // 2. Fetch the cards for the deck (shuffled)
-    const cardsResponse = await axios.get(`/api/decks/${props.deck.id}/cards`);
-    cards.value = cardsResponse.data.data;
-    if (cards.value.length > 0) {
-        currentCard.value = cards.value[0];
-    } else {
-        sessionFinished.value = true;
+// Create a dedicated API client that includes the auth token
+const apiClient = axios.create({
+    baseURL: '/api',
+    headers: {
+        'Authorization': `Bearer ${localStorage.getItem('api_token')}`,
+        'Accept': 'application/json',
     }
 });
 
+// Lifecycle Hook
+onMounted(async () => {
+    try {
+        const sessionResponse = await apiClient.post('/studies', { deck_id: props.deck.id });
+        studyId.value = sessionResponse.data.study_id;
+
+        const cardsResponse = await apiClient.get(`/decks/${props.deck.id}/cards`);
+        cards.value = cardsResponse.data.data;
+
+        if (cards.value.length === 0) {
+            sessionFinished.value = true;
+        }
+    } catch (error) {
+        console.error("Failed to start study session:", error);
+        // Handle error, maybe redirect or show a message
+        alert('Could not start the study session. Please ensure your API token is valid and try again.');
+    } finally {
+        loading.value = false;
+    }
+});
+
+// Methods
 const revealAnswer = () => {
     answerVisible.value = true;
 };
@@ -76,8 +125,7 @@ const recordResult = async (isCorrect) => {
     if (isCorrect) {
         correctAnswers.value++;
     }
-    // Record the result
-    await axios.post('/api/study-results', {
+    await apiClient.post('/study-results', {
         study_id: studyId.value,
         card_id: currentCard.value.id,
         is_correct: isCorrect
@@ -89,15 +137,26 @@ const nextCard = () => {
     answerVisible.value = false;
     if (currentCardIndex.value < cards.value.length - 1) {
         currentCardIndex.value++;
-        currentCard.value = cards.value[currentCardIndex.value];
     } else {
         finishSession();
     }
 };
 
 const finishSession = async () => {
-    await axios.patch(`/api/studies/${studyId.value}/complete`);
+    await apiClient.patch(`/studies/${studyId.value}/complete`);
     sessionFinished.value = true;
 };
-
 </script>
+
+<style scoped>
+/* Smooth fade transition for the flashcard content */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>
