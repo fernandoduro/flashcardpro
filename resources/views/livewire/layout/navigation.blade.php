@@ -3,6 +3,14 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
 
+            
+            <!-- Center: Logo -->
+            <div class="flex-shrink-0 flex items-center justify-start w-1/3">
+                <a class="flex items-center text-3xl justify-center exo-2 whitespace-nowrap" href="{{ route('decks.index') }}">
+                    FLASHCARDPRO 
+                </a>
+            </div>
+            
             <!-- Left Side: Tabs -->
             <div class="hidden sm:flex sm:items-center sm:w-1/3">
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -13,14 +21,6 @@
                         {{ __('My Decks') }}
                     </x-nav-link>
                 </div>
-            </div>
-
-            <!-- Center: Logo -->
-            <div class="flex-shrink-0 flex items-center justify-center w-1/3">
-                <a class="flex items-center justify-center exo-2 whitespace-nowrap" href="{{ route('decks.index') }}">
-                    <img class="block h-[60px] w-auto" src="{{ asset('images/simple_logo.png') }}" alt="FlashcardPro Logo">
-                    | FLASHCARDPRO 
-                </a>
             </div>
 
             <!-- Right Side: User Dropdown -->
