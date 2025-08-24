@@ -2,65 +2,70 @@
 
 namespace App\Livewire\Statistics;
 
-use App\Models\Card;
 use App\Models\Study;
 use App\Models\StudyResult;
 use Carbon\CarbonPeriod;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 class Index extends Component
 {
-    public $totalCompletedStudies = 0;
-    public $totalQuestionsAnswered = 0;
-    public $percentageCorrect = 0;
-    public $mostWrongedCard = null;
-    public $deckStudyRanking = [];
-    public array $studiesPerDayChartData = [];
-    
-
-    public function mount()
+    /**
+     * Get the total number of completed study sessions for the user.
+     */
+    #[Computed]
+    public function totalCompletedStudies(): int
     {
-        $userId = auth()->id();
-
-        // --- Prepare main stats ---
-        $this->totalCompletedStudies = Study::where('user_id', $userId)
+        return Study::where('user_id', auth()->id())
             ->whereNotNull('completed_at')
             ->count();
+    }
 
-        $this->totalQuestionsAnswered = StudyResult::whereHas('study', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->count();
+    /**
+     * Get aggregate statistics about all answers.
+     * This combines three queries into one for efficiency.
+     */
+    #[Computed]
+    public function answerStats(): object
+    {
+        return StudyResult::query()
+            ->whereHas('study', fn (Builder $query) => $query->where('user_id', auth()->id()))
+            ->selectRaw('
+                count(*) as total_questions,
+                avg(is_correct) * 100 as percentage_correct
+            ')
+            ->first() ?? (object) ['total_questions' => 0, 'percentage_correct' => 0];
+    }
 
-        $this->percentageCorrect = StudyResult::whereHas('study', function ($query) use ($userId) {
-            $query->where('user_id', $userId);
-        })->select(DB::raw('AVG(CASE WHEN is_correct THEN 1 ELSE 0 END) * 100 as percentage_correct'))
-          ->value('percentage_correct') ?? 0;
-
-        // 2. Find and set the most wronged question
-        $mostWronged = StudyResult::query()
+    /**
+     * Find the card that the user has answered incorrectly most often.
+     */
+    #[Computed]
+    public function mostWrongedCard(): ?object
+    {
+        return StudyResult::query()
             ->join('studies', 'study_results.study_id', '=', 'studies.id')
-            ->where('studies.user_id', $userId)
-            ->where('is_correct', false)
-            ->select('card_id', DB::raw('count(*) as incorrect_count'))
-            ->groupBy('card_id')
+            ->join('cards', 'study_results.card_id', '=', 'cards.id')
+            ->where('studies.user_id', auth()->id())
+            ->where('study_results.is_correct', false)
+            ->select('cards.question', 'cards.answer', DB::raw('count(*) as incorrect_count'))
+            ->groupBy('study_results.card_id', 'cards.question', 'cards.answer')
             ->orderByDesc('incorrect_count')
             ->first();
+    }
 
-        if ($mostWronged) {
-            $card = Card::find($mostWronged->card_id);
-            $this->mostWrongedCard = (object) [
-                'question' => $card?->question,
-                'answer' => $card?->answer,
-                'count' => $mostWronged->incorrect_count,
-            ];
-        } else {
-            $this->mostWrongedCard = null; // Ensure it's null if no data
-        }
-
-        // 3. Get and set ranking of studies per deck
-        $this->deckStudyRanking = Study::query()
-            ->where('user_id', $userId)
+    /**
+     * Get the top 5 most studied decks.
+     */
+    #[Computed]
+    public function deckStudyRanking(): Collection
+    {
+        return Study::query()
+            ->where('user_id', auth()->id())
             ->whereNotNull('completed_at')
             ->select('deck_id', DB::raw('count(*) as study_count'))
             ->with('deck:id,name')
@@ -68,19 +73,21 @@ class Index extends Component
             ->orderByDesc('study_count')
             ->limit(5)
             ->get();
-
-        $this->studiesPerDayChartData = $this->prepareStudiesPerDayChartData($userId);
     }
 
-    protected function prepareStudiesPerDayChartData(int $userId): array
+    /**
+     * Prepare data for the studies per day line chart.
+     */
+    #[Computed]
+    public function studiesPerDayChartData(): array
     {
         $studyCounts = Study::query()
-            ->where('user_id', $userId)
+            ->where('user_id', auth()->id())
             ->where('completed_at', '>=', now()->subDays(29)->startOfDay())
             ->select(DB::raw('DATE(completed_at) as date'), DB::raw('count(*) as count'))
             ->groupBy('date')
             ->get()
-            ->keyBy('date');
+            ->keyBy(fn ($item) => $item->date);
 
         $period = CarbonPeriod::create(now()->subDays(29), now());
         $dates = [];
@@ -89,7 +96,7 @@ class Index extends Component
         foreach ($period as $date) {
             $formattedDate = $date->format('Y-m-d');
             $dates[] = $date->format('M j');
-            $counts[] = $studyCounts[$formattedDate]->count ?? 0;
+            $counts[] = $studyCounts->get($formattedDate)?->count ?? 0;
         }
 
         return [
@@ -98,9 +105,14 @@ class Index extends Component
         ];
     }
 
-    public function render()
+    /**
+     * Render the component.
+     *
+     * Computed properties are automatically passed to the view,
+     * so we don't need to pass any data manually.
+     */
+    public function render(): View
     {
-        // Now the render method is very clean.
         return view('livewire.statistics.index')
             ->layout('layouts.app', ['title' => 'My Statistics']);
     }

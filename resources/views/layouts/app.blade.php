@@ -50,5 +50,11 @@
         </div>
 
         <livewire:layout.bottom-nav />
+
+        @if (session()->has('api_token'))
+            <script>
+                localStorage.setItem('api_token', '{{ session('api_token') }}');
+            </script>
+        @endif
     </body>
 </html>

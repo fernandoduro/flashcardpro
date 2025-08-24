@@ -1,8 +1,18 @@
 <template>
     <div class="max-w-2xl mx-auto">
 
+        <!-- Error State -->
+        <div v-if="error" class="text-center p-10 bg-white rounded-lg shadow-md border-2 border-red-200">
+            <i class="fa-solid fa-circle-exclamation text-4xl text-red-500"></i>
+            <p class="mt-4 text-lg font-semibold text-gray-700">Could not start the study session.</p>
+            <p class="mt-1 text-sm text-gray-500">{{ error }}</p>
+            <a :href="deckUrl" class="mt-6 inline-flex items-center px-6 py-3 bg-gray-700 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-gray-600">
+                Back to Deck
+            </a>
+        </div>
+
         <!-- Loading State -->
-        <div v-if="loading" class="text-center p-10 bg-white rounded-lg shadow-md">
+        <div v-else-if="loading" class="text-center p-10 bg-white rounded-lg shadow-md">
             <i class="fa-solid fa-spinner fa-spin text-4xl text-primary-500"></i>
             <p class="mt-4 text-lg text-gray-600">Preparing your study session...</p>
         </div>
@@ -26,7 +36,7 @@
                     <span class="text-sm font-semibold text-gray-500">{{ currentCardIndex + 1 }} / {{ cards.length }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5">
-                    <div class="bg-primary-600 h-2.5 rounded-full" :style="{ width: progressPercentage + '%' }"></div>
+                    <div class="bg-primary-600 h-2.5 rounded-full transition-all duration-300 ease-out" :style="{ width: progressPercentage + '%' }"></div>
                 </div>
             </div>
 
@@ -37,7 +47,7 @@
                         <!-- Question View -->
                         <div v-if="!answerVisible">
                             <p class="text-2xl sm:text-3xl text-gray-700">{{ currentCard.question }}</p>
-                            <button @click="revealAnswer" class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500">
+                            <button @click="revealAnswer" type="button" class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500">
                                 Reveal Answer
                             </button>
                         </div>
@@ -47,10 +57,10 @@
                             <p class="text-xl text-gray-500 mb-2">{{ currentCard.question }}</p>
                             <p class="text-3xl sm:text-4xl font-bold text-green-600 mb-8">{{ currentCard.answer }}</p>
                             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                                <button @click="recordResult(true)" class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600">
+                                <button @click="recordResult(true)" type="button" class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600">
                                     <i class="fa-solid fa-check mr-2"></i> I Got It Right
                                 </button>
-                                <button @click="recordResult(false)" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300">
+                                <button @click="recordResult(false)" type="button" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300">
                                     <i class="fa-solid fa-xmark mr-2"></i> Maybe Next Time
                                 </button>
                             </div>
@@ -75,6 +85,7 @@ const deckUrl = `/decks/${props.deck.id}`;
 
 // State
 const loading = ref(true);
+const error = ref(null);
 const cards = ref([]);
 const currentCardIndex = ref(0);
 const answerVisible = ref(false);
@@ -84,7 +95,13 @@ const studyId = ref(null);
 
 // Computed Properties
 const currentCard = computed(() => cards.value[currentCardIndex.value]);
-const progressPercentage = computed(() => ((currentCardIndex.value + 1) / cards.value.length) * 100);
+const progressPercentage = computed(() => {
+    // Guard against division by zero if a deck has no cards
+    if (!cards.value || cards.value.length === 0) {
+        return 0;
+    }
+    return ((currentCardIndex.value + 1) / cards.value.length) * 100;
+});
 
 // Create a dedicated API client that includes the auth token
 const apiClient = axios.create({
@@ -97,6 +114,13 @@ const apiClient = axios.create({
 
 // Lifecycle Hook
 onMounted(async () => {
+    // Pre-flight check for the API token
+    if (!localStorage.getItem('api_token')) {
+        error.value = "API token not found in local storage. Please log in or generate a token.";
+        loading.value = false;
+        return;
+    }
+
     try {
         const sessionResponse = await apiClient.post('/studies', { deck_id: props.deck.id });
         studyId.value = sessionResponse.data.study_id;
@@ -107,10 +131,10 @@ onMounted(async () => {
         if (cards.value.length === 0) {
             sessionFinished.value = true;
         }
-    } catch (error) {
-        console.error("Failed to start study session:", error);
-        // Handle error, maybe redirect or show a message
-        alert('Could not start the study session. Please ensure your API token is valid and try again.');
+    } catch (err) {
+        console.error("Failed to start study session:", err);
+        // Provide a user-friendly error from the API response if available
+        error.value = err.response?.data?.message || "An unexpected API error occurred.";
     } finally {
         loading.value = false;
     }
@@ -125,12 +149,17 @@ const recordResult = async (isCorrect) => {
     if (isCorrect) {
         correctAnswers.value++;
     }
-    await apiClient.post('/study-results', {
-        study_id: studyId.value,
-        card_id: currentCard.value.id,
-        is_correct: isCorrect
-    });
-    nextCard();
+    try {
+        await apiClient.post('/study-results', {
+            study_id: studyId.value,
+            card_id: currentCard.value.id,
+            is_correct: isCorrect
+        });
+        nextCard();
+    } catch (err) {
+        console.error("Failed to record result:", err);
+        error.value = "Could not save your answer. Please check your connection and try again.";
+    }
 };
 
 const nextCard = () => {
@@ -143,8 +172,14 @@ const nextCard = () => {
 };
 
 const finishSession = async () => {
-    await apiClient.patch(`/studies/${studyId.value}/complete`);
-    sessionFinished.value = true;
+    try {
+        await apiClient.patch(`/studies/${studyId.value}/complete`);
+        sessionFinished.value = true;
+    } catch (err) {
+        console.error("Failed to complete session:", err);
+        // This is a non-critical error, so we can still show the finished screen
+        sessionFinished.value = true;
+    }
 };
 </script>
 

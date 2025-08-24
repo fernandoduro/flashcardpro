@@ -4,8 +4,10 @@ namespace App\Livewire\Decks;
 
 use App\Models\Card;
 use App\Models\Deck;
-use Livewire\Component;
+use Illuminate\Contracts\View\View; 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Show extends Component
 {
@@ -13,9 +15,20 @@ class Show extends Component
 
     public Deck $deck;
 
-    protected $listeners = ['cardCreated' => 'refreshCardList', 'cardUpdated' => 'refreshCardList', 'deleteCard' => 'deleteCard'];
+    /**
+     * Mount the component and authorize the user.
+     */
+    public function mount(Deck $deck): void
+    {
+        $this->authorize('view', $deck);
+        $this->deck = $deck->load('cards');
+    }
 
-    public function deleteCard(int $cardId)
+    /**
+     * Remove a card from the current deck.
+     */
+    #[On('deleteCard')]
+    public function deleteCard(int $cardId): void
     {
         $card = Card::findOrFail($cardId);
         $this->authorize('delete', $card);
@@ -27,20 +40,23 @@ class Show extends Component
 
         $this->refreshCardList();
     }
-    
-    public function mount(Deck $deck)
+
+    /**
+     * Refresh the list of cards after an update.
+     */
+    #[On('cardCreated')]
+    #[On('cardUpdated')]
+    public function refreshCardList(): void
     {
-        $this->authorize('view', $deck);
-        $this->deck = $deck->load('cards');
+        $this->deck = $this->deck->fresh()->load('cards');
     }
 
-    public function refreshCardList()
+    /**
+     * Render the component.
+     */
+    public function render(): View
     {
-        $this->deck->load('cards');
-    }
-
-    public function render()
-    {
-        return view('livewire.decks.show')->layout('layouts.app', ['title' => $this->deck->name]);;
+        return view('livewire.decks.show')
+            ->layout('layouts.app', ['title' => $this->deck->name]);
     }
 }

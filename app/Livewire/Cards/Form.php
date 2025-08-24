@@ -4,17 +4,16 @@ namespace App\Livewire\Cards;
 
 use App\Models\Card;
 use App\Models\Deck;
-use Livewire\Component;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\Component;
 
 class Form extends Component
 {
     use AuthorizesRequests;
 
-    public bool $showModal = false;
     public ?Card $editingCard = null;
-
     public ?Deck $deck = null;
+
     public string $question = '';
     public string $answer = '';
 
@@ -26,23 +25,28 @@ class Form extends Component
     public function rules(): array
     {
         return [
-            'question' => 'required|string|min:5',
-            'answer' => 'required|string|min:1',
+            'question' => ['required', 'string', 'min:5'],
+            'answer' => ['required', 'string', 'min:1'],
         ];
     }
 
-    public function openForCreate(int $deckId)
+    /**
+     * Prepare the modal for creating a new card for a given deck.
+     */
+    public function openForCreate(int $deckId): void
     {
         $this->deck = Deck::findOrFail($deckId);
         $this->authorize('create', Card::class);
-
-        $this->editingCard = null;
+        $this->reset('editingCard', 'question', 'answer');
         $this->resetValidation();
-        $this->reset('question', 'answer');
+
         $this->dispatch('open-modal', 'card-form');
     }
 
-    public function openForEdit(int $cardId)
+    /**
+     * Prepare the modal for editing an existing card.
+     */
+    public function openForEdit(int $cardId): void
     {
         $card = Card::findOrFail($cardId);
         $this->authorize('update', $card);
@@ -56,32 +60,47 @@ class Form extends Component
         $this->dispatch('open-modal', 'card-form');
     }
 
-    public function close()
+    /**
+     * Save the new or edited card to the database.
+     */
+    public function save(): void
     {
-        $this->reset('question', 'answer', 'editingCard', 'deck');
-        $this->dispatch('close-modal', 'card-form');
-    }
-
-    public function save()
-    {
-        $validated = $this->validate();
+        $this->validate();
 
         if ($this->editingCard) {
             $this->authorize('update', $this->editingCard);
-            $this->editingCard->update($validated);
+            $this->editingCard->update([
+                'question' => $this->question,
+                'answer' => $this->answer,
+            ]);
             $this->dispatch('cardUpdated');
         } else {
             $this->authorize('create', Card::class);
-            $card = auth()->user()->cards()->create($validated);
+
+            $user = auth()->user();
+            $card = $user->cards()->create([
+                'question' => $this->question,
+                'answer' => $this->answer,
+            ]);
             $this->deck->cards()->attach($card->id);
             $this->dispatch('cardCreated');
         }
 
-        $this->close();
+        $this->dispatch('close-modal', 'card-form');
+        $this->resetState();
+    }
+
+    /**
+     * Reset the component's state.
+     */
+    public function resetState(): void
+    {
+        $this->reset('editingCard', 'deck', 'question', 'answer');
+        $this->resetValidation();
     }
 
     public function render()
     {
-        return view('livewire.cards.form')->layout('layouts.app');
+        return view('livewire.cards.form');
     }
 }

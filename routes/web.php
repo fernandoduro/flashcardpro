@@ -3,45 +3,51 @@
 use App\Livewire\Decks;
 use App\Livewire\Cards;
 use App\Livewire\Statistics;
-use Illuminate\Support\Facades\File;
+use App\Models\Deck;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'welcome');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
 
-
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/decks', Decks\Index::class)->name('decks.index');
-    Route::get('/decks/create', Decks\Form::class)->name('decks.form');
-    Route::get('/decks/{deck}', Decks\Show::class)->name('decks.show');
-    Route::get('/decks/{deck}/cards/create', Cards\Form::class)->name('decks.cards.form');
-    Route::view('profile', 'profile')->name('profile');
-    Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
-});
-
-Route::get('/study/{deck}', function (\App\Models\Deck $deck) {
-    // Authorize that the current user can view this deck
-    if (auth()->user()->cannot('view', $deck)) {
-        abort(403);
-    }
-    return view('study.show', ['deck' => $deck]);
-})->middleware(['auth', 'verified'])->name('study.show');
-
+// Public / Guest Routes
+Route::view('/', 'welcome')->name('welcome');
 Route::view('/api/documentation', 'api-docs')->name('api.docs');
-
 Route::get('/openapi.yaml', function () {
     $path = public_path('openapi.yaml');
-
-    if (!file_exists($path)) {
-        abort(404, 'The OpenAPI specification file was not found.');
+    if (! file_exists($path)) {
+        abort(404);
     }
-
-    return response()->file($path, [
-        'Content-Type' => 'application/vnd.oai.openapi;charset=utf-8', // A more correct MIME type
-    ]);
+    return response()->file($path, ['Content-Type' => 'application/vnd.oai.openapi;charset=utf-8']);
 })->name('api.docs.yaml');
+
+// Authenticated Routes
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
+    Route::view('/profile', 'profile')->name('profile');
+
+    // Deck-specific routes
+    Route::prefix('decks')->name('decks.')->group(function () {
+        Route::get('/', Decks\Index::class)->name('index');
+        Route::get('/create', Decks\Form::class)->name('create');
+        Route::get('/{deck}', Decks\Show::class)->name('show');
+        Route::get('/{deck}/cards/create', Cards\Form::class)->name('cards.create');
+    });
+
+    // Study route
+    Route::get('/study/{deck}', function (Request $request, Deck $deck) {
+        // Option A (Recommended): Use the request helper
+        $request->user()->can('view', $deck);
+        
+        // Your original logic was also good, just without `$this`
+        if (auth()->user()->cannot('view', 'deck')) {
+            abort(403);
+        }
+
+        return view('study.show', ['deck' => $deck]);
+    })->name('study.show');
+});
 
 require __DIR__.'/auth.php';

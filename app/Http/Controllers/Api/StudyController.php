@@ -3,13 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Deck;
 use App\Models\Study;
 use App\Models\StudyResult;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
 use Illuminate\Validation\Rule;
+use Illuminate\Http\JsonResponse;
 
 class StudyController extends Controller
 {

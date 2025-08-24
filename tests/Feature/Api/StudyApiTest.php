@@ -13,7 +13,7 @@ test('a user can start a study session for their own deck', function () {
 
     actingAs($user)
         ->post('/api/studies', ['deck_id' => $deck->id])
-        ->assertStatus(200)
+        ->assertStatus(201)
         ->assertJsonStructure(['study_id']);
 });
 

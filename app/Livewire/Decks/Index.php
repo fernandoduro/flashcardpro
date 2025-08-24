@@ -3,39 +3,64 @@
 namespace App\Livewire\Decks;
 
 use App\Models\Deck;
-use Livewire\Component;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class Index extends Component
 {
-    use AuthorizesRequests; 
+    use AuthorizesRequests;
 
-    protected $listeners = ['deckCreated' => '$refresh', 'deckUpdated' => '$refresh', 'deleteDeck' => 'deleteDeck'];    
-    
-    public function deleteDeck(int $deckId)
+    /**
+     * Delete a deck after confirmation.
+     */
+    #[On('deleteDeck')]
+    public function deleteDeck(int $deckId): void
     {
         $deck = Deck::findOrFail($deckId);
         $this->authorize('delete', $deck);
-        
+
         $deck->delete();
-        // The list will refresh automatically
     }
 
-    
-    public function togglePin(int $deckId)
+    /**
+     * Pin or unpin a deck.
+     */
+    public function togglePin(int $deckId): void
     {
-        $deck = Deck::where('user_id', auth()->id())->findOrFail($deckId);
+        $deck = Deck::findOrFail($deckId);
+        $this->authorize('update', $deck);
+
         $deck->update(['is_pinned' => !$deck->is_pinned]);
-        // A re-render will be triggered automatically.
     }
 
-
-    public function render()
+    /**
+     * Get the decks for the currently authenticated user.
+     * This uses a computed property for cleaner access and caching.
+     */
+    public function getDecksProperty(): Collection
     {
-        $decks = auth()->user()->decks()->withCount('cards')->orderBy('is_pinned', 'desc')->get();
+        return auth()->user()
+            ->decks()
+            ->withCount('cards')
+            ->orderByDesc('is_pinned')
+            ->latest()
+            ->get();
+    }
 
-        return view('livewire.decks.index', [
-            'decks' => $decks,
-        ])->layout('layouts.app');
+    /**
+     * Render the component.
+     *
+     * We no longer need to pass the decks manually,
+     * as the computed property `$this->decks` is now automatically available.
+     */
+    #[On('deckCreated')]
+    #[On('deckUpdated')]
+    public function render(): View
+    {
+        return view('livewire.decks.index')
+            ->layout('layouts.app');
     }
 }

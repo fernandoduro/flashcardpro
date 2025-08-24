@@ -6,6 +6,7 @@
     </x-slot>
 
     <div class="py-12" id="app">
-        <study-session :deck="{{ json_encode($deck) }}"></study-session>
+        {{-- Use the @json directive for safer JSON encoding --}}
+        <study-session :deck='@json($deck)'></study-session>
     </div>
 </x-app-layout>
