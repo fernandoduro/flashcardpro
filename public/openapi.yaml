@@ -1,0 +1,352 @@
+openapi: 3.0.3
+info:
+  title: FlashcardPro API
+  description: |-
+    This is the official API for the FlashcardPro application. It provides endpoints for user authentication, managing decks and cards, and tracking study sessions.
+  version: 1.0.0
+  contact:
+    email: your.email@example.com
+
+servers:
+  - url: http://localhost/api
+    description: Local Development Server
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user and get API token
+      description: Exchanges a user's email and password for a Sanctum API token that can be used for subsequent authenticated requests.
+      operationId: loginUser
+      requestBody:
+        description: User credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "alice@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "password"
+      responses:
+        '200':
+          description: Successful authentication
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "1|KAPXQ9wbwrMQpvVLiGOSW6RKKxnZzVcrMDHU3jE9"
+        '422':
+          description: Validation error (e.g., incorrect credentials)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorValidation'
+
+  /logout:
+    post:
+      tags:
+        - Authentication
+      summary: Log out and revoke the current API token
+      description: Invalidates the API token that was used to make this request.
+      operationId: logoutUser
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: Successfully logged out (No Content).
+        '401':
+          description: Unauthenticated.
+
+  /decks:
+    get:
+      tags:
+        - Decks
+      summary: Get a list of the authenticated user's decks
+      description: Retrieves a paginated list of all decks owned by the user who is authenticated via the Bearer token.
+      operationId: getDecks
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: A paginated list of decks.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Deck'
+                  links:
+                    $ref: '#/components/schemas/PaginationLinks'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          description: Unauthenticated.
+
+  /decks/{deck}/cards:
+    get:
+      tags:
+        - Cards
+      summary: Get cards for a specific deck
+      description: Retrieves a list of all cards associated with a specific deck. The cards are returned in a random order suitable for a study session.
+      operationId: getDeckCards
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: deck
+          in: path
+          description: The ID of the deck.
+          required: true
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: A list of cards.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Card'
+        '401':
+          description: Unauthenticated.
+        '403':
+          description: Forbidden (user does not own this deck).
+        '404':
+          description: Deck not found.
+
+  /studies:
+    post:
+      tags:
+        - Study
+      summary: Start a new study session
+      description: Creates a new study session record for a given deck and returns the new study ID.
+      operationId: startStudy
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - deck_id
+              properties:
+                deck_id:
+                  type: integer
+                  description: The ID of the deck to be studied.
+                  example: 1
+      responses:
+        '201':
+          description: Study session created successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  study_id:
+                    type: integer
+                    example: 15
+        '401':
+          description: Unauthenticated.
+        '422':
+          description: Validation error (e.g., deck does not exist or does not belong to user).
+
+  /studies/{study}/complete:
+    patch:
+      tags:
+        - Study
+      summary: Mark a study session as complete
+      description: Updates a study session record to mark it as completed by setting the `completed_at` timestamp.
+      operationId: completeStudy
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: study
+          in: path
+          description: The ID of the study session.
+          required: true
+          schema:
+            type: integer
+            example: 15
+      responses:
+        '200':
+          description: Successful operation.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Study session completed."
+        '401':
+          description: Unauthenticated.
+        '403':
+          description: Forbidden (user does not own this study session).
+
+  /study-results:
+    post:
+      tags:
+        - Study
+      summary: Record a study result for a card
+      description: Creates a record indicating whether the user answered a specific card correctly during a specific study session.
+      operationId: recordStudyResult
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - study_id
+                - card_id
+                - is_correct
+              properties:
+                study_id:
+                  type: integer
+                  example: 15
+                card_id:
+                  type: integer
+                  example: 101
+                is_correct:
+                  type: boolean
+                  example: true
+      responses:
+        '201':
+          description: Result recorded successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Result recorded."
+        '401':
+          description: Unauthenticated.
+        '422':
+          description: Validation error.
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Deck:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "History 101"
+        is_public:
+          type: boolean
+          example: false
+        cards_count:
+          type: integer
+          example: 25
+        created_at:
+          type: string
+          format: date-time
+          example: "2025-08-21T12:00:00Z"
+
+    Card:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 101
+        question:
+          type: string
+          example: "Who was the first person on the moon?"
+        answer:
+          type: string
+          example: "Neil Armstrong"
+        difficulty:
+          type: string
+          enum: [easy, medium, hard]
+          example: "medium"
+
+    ErrorValidation:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "The given data was invalid."
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          example: "http://localhost/api/decks?page=1"
+        last:
+          type: string
+          example: "http://localhost/api/decks?page=5"
+        prev:
+          type: string
+          nullable: true
+          example: null
+        next:
+          type: string
+          nullable: true
+          example: "http://localhost/api/decks?page=2"
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+          example: 1
+        from:
+          type: integer
+          example: 1
+        last_page:
+          type: integer
+          example: 5
+        path:
+          type: string
+          example: "http://localhost/api/decks"
+        per_page:
+          type: integer
+          example: 15
+        to:
+          type: integer
+          example: 15
+        total:
+          type: integer
+          example: 75

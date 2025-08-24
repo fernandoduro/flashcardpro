@@ -8,22 +8,28 @@ use App\Http\Resources\DeckResource;
 use App\Models\Deck;
 use Illuminate\Http\Request;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
 class DeckController extends Controller
 {
-    public function index(Request $request)
+    use AuthorizesRequests;
+
+    public function index(Request $request): AnonymousResourceCollection
     {
-        $decks = $request->user()->decks()->withCount('cards')->get();
+        $decks = $decks = $request->user()
+            ->decks()
+            ->withCount('cards')
+            ->latest()
+            ->paginate(15);
 
         return DeckResource::collection($decks);
     }
 
-    public function cards(Request $request, Deck $deck)
+    public function cards(Request $request, Deck $deck): AnonymousResourceCollection
     {
-        if ($request->user()->cannot('view', $deck)) {
-            abort(403);
-        }
-        
-        // Shuffle the cards for the study session
+        $this->authorize('view', $deck);
+
         return CardResource::collection($deck->cards()->inRandomOrder()->get());
     }
 }

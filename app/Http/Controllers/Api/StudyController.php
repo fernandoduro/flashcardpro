@@ -8,50 +8,45 @@ use App\Models\Study;
 use App\Models\StudyResult;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests; // <-- 1. IMPORT THE TRAIT
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
+use Illuminate\Validation\Rule;
 
 class StudyController extends Controller
 {
     use AuthorizesRequests;
 
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'deck_id' => 'required|exists:decks,id'
+            'deck_id' => ['required', Rule::exists('decks', 'id')->where('user_id', $request->user()->id)],
         ]);
 
-        $deck = Deck::findOrFail($data['deck_id']);
+        $user = $request->user();
 
-        $this->authorize('create', [Study::class, $deck]);
+        $study = $user->studies()->create($data);
 
-        $study = Study::create([
-            'user_id' => Auth::id(),
-            'deck_id' => $deck->id,
-        ]);
-
-        return response()->json(['study_id' => $study->id]);
+        return response()->json(['study_id' => $study->id], 201);
     }
 
-    public function complete(Study $study)
+    public function complete(Request $request, Study $study): JsonResponse
     {
         $this->authorize('update', $study);
+
         $study->update(['completed_at' => now()]);
+
         return response()->json(['message' => 'Study session completed.']);
     }
 
-    public function recordResult(Request $request)
+    public function recordResult(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'study_id' => 'required|exists:studies,id',
-            'card_id' => 'required|exists:cards,id',
-            'is_correct' => 'required|boolean',
+            'study_id' => ['required', Rule::exists('studies', 'id')->where('user_id', $request->user()->id)],
+            'card_id' => ['required', Rule::exists('cards', 'id')->where('user_id', $request->user()->id)],
+            'is_correct' => ['required', 'boolean'],
         ]);
-
-        $study = Study::findOrFail($data['study_id']);
-        $this->authorize('update', $study);
 
         StudyResult::create($data);
 
-        return response()->json(['message' => 'Result recorded.']);
+        return response()->json(['message' => 'Result recorded.'], 201);
     }
 }
