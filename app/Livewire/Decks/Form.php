@@ -7,10 +7,11 @@ use Livewire\Component;
 use Livewire\WithFileUploads; 
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Form extends Component
 {
-    use WithFileUploads;
+    use WithFileUploads, AuthorizesRequests;
     
     public bool $showModal = false;
     public ?Deck $editingDeck = null;
@@ -27,6 +28,7 @@ class Form extends Component
 
     public function openForCreate()
     {
+        $this->authorize('create', Deck::class);
         $this->editingDeck = null; // Ensure we are not in edit mode
         $this->resetValidation();
         $this->reset('name', 'isPublic', 'coverImage');
@@ -36,6 +38,7 @@ class Form extends Component
     public function openForEdit(int $deckId)
     {
         $deck = Deck::findOrFail($deckId);
+        $this->authorize('update', $deck);
         // Optional: Add authorization check if needed
         // $this->authorize('update', $deck);
 
@@ -75,6 +78,12 @@ class Form extends Component
     {
         $validated = $this->validate();
 
+        if ($this->editingDeck) {
+            $this->authorize('update', $this->editingDeck);
+        } else {
+            $this->authorize('create', Deck::class);
+        }
+
         if ($this->coverImage) {
             // Delete the old image if we are editing and an old one exists
             if ($this->editingDeck && $this->editingDeck->cover_image_path) {
@@ -94,11 +103,9 @@ class Form extends Component
         }
 
         if ($this->editingDeck) {
-            // We are in EDIT mode
             $this->editingDeck->update($dataToSave);
             $this->dispatch('deckUpdated');
         } else {
-            // We are in CREATE mode
             auth()->user()->decks()->create($dataToSave);
             $this->dispatch('deckCreated');
         }

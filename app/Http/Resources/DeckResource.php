@@ -13,7 +13,7 @@ class DeckResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'is_public' => $this->public,
-            'cards_count' => $this->whenCounted('cards'), // Include if loaded
+            'cards_count' => $this->whenCounted('cards'),
             'created_at' => $this->created_at->toIso8601String(),
         ];
     }

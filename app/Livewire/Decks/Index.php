@@ -4,15 +4,19 @@ namespace App\Livewire\Decks;
 
 use App\Models\Deck;
 use Livewire\Component;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Index extends Component
 {
+    use AuthorizesRequests; 
+
     protected $listeners = ['deckCreated' => '$refresh', 'deckUpdated' => '$refresh', 'deleteDeck' => 'deleteDeck'];    
     
     public function deleteDeck(int $deckId)
     {
         $deck = Deck::findOrFail($deckId);
         $this->authorize('delete', $deck);
+        
         $deck->delete();
         // The list will refresh automatically
     }

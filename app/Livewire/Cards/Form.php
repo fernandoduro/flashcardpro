@@ -5,9 +5,12 @@ namespace App\Livewire\Cards;
 use App\Models\Card;
 use App\Models\Deck;
 use Livewire\Component;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class Form extends Component
 {
+    use AuthorizesRequests;
+
     public bool $showModal = false;
     public ?Card $editingCard = null;
 
@@ -31,21 +34,21 @@ class Form extends Component
     public function openForCreate(int $deckId)
     {
         $this->deck = Deck::findOrFail($deckId);
+        $this->authorize('create', Card::class);
+
         $this->editingCard = null;
         $this->resetValidation();
         $this->reset('question', 'answer');
         $this->dispatch('open-modal', 'card-form');
     }
 
-    // Open the modal for EDITING an existing card
     public function openForEdit(int $cardId)
     {
         $card = Card::findOrFail($cardId);
-        // Optional: Add authorization
-        // $this->authorize('update', $card);
+        $this->authorize('update', $card);
 
         $this->editingCard = $card;
-        $this->deck = null; // Deck context isn't strictly needed for editing a card directly
+        $this->deck = null;
         $this->question = $card->question;
         $this->answer = $card->answer;
 
@@ -64,11 +67,11 @@ class Form extends Component
         $validated = $this->validate();
 
         if ($this->editingCard) {
-            // EDIT mode
+            $this->authorize('update', $this->editingCard);
             $this->editingCard->update($validated);
             $this->dispatch('cardUpdated');
         } else {
-            // CREATE mode
+            $this->authorize('create', Card::class);
             $card = auth()->user()->cards()->create($validated);
             $this->deck->cards()->attach($card->id);
             $this->dispatch('cardCreated');
