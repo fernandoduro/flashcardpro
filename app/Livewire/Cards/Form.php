@@ -34,7 +34,7 @@ class Form extends Component
         $this->editingCard = null;
         $this->resetValidation();
         $this->reset('question', 'answer');
-        $this->dispatch('open-card-modal');
+        $this->dispatch('open-modal', 'card-form');
     }
 
     // Open the modal for EDITING an existing card
@@ -50,13 +50,13 @@ class Form extends Component
         $this->answer = $card->answer;
 
         $this->resetValidation();
-        $this->dispatch('open-card-modal');
+        $this->dispatch('open-modal', 'card-form');
     }
 
     public function close()
     {
         $this->reset('question', 'answer', 'editingCard', 'deck');
-        $this->dispatch('close-card-modal');
+        $this->dispatch('close-modal', 'card-form');
     }
 
     public function save()

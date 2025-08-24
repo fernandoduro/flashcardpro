@@ -30,7 +30,7 @@ class Form extends Component
         $this->editingDeck = null; // Ensure we are not in edit mode
         $this->resetValidation();
         $this->reset('name', 'isPublic', 'coverImage');
-        $this->dispatch('open-deck-modal');
+        $this->dispatch('open-modal', 'deck-form');
     }
 
     public function openForEdit(int $deckId)
@@ -45,13 +45,13 @@ class Form extends Component
         $this->reset('coverImage'); 
 
         $this->resetValidation();
-        $this->dispatch('open-deck-modal');
+        $this->dispatch('open-modal', 'deck-form');
     }
 
     public function close()
     {
         $this->reset('name', 'isPublic', 'editingDeck', 'coverImage');
-        $this->dispatch('close-deck-modal');
+        $this->dispatch('close-modal', 'deck-form');
     }
 
      public function rules(): array
@@ -63,8 +63,8 @@ class Form extends Component
                 'string',
                 'max:255',
                 $this->editingDeck
-                    ? Rule::unique('decks')->ignore($this->editingDeck->id)
-                    : Rule::unique('decks')
+                    ? Rule::unique('decks')->where('user_id', auth()->id())->ignore($this->editingDeck->id)
+                    : Rule::unique('decks')->where('user_id', auth()->id())
             ],
             'isPublic' => 'required|boolean',
             'coverImage' => 'nullable|image|max:2048', 

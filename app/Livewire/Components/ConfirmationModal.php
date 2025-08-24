@@ -6,7 +6,8 @@ use Livewire\Component;
 
 class ConfirmationModal extends Component
 {
-    public bool $showModal = false;
+    // We no longer need the $showModal property
+    // public bool $showModal = false;
 
     public string $title = '';
     public string $message = '';
@@ -15,29 +16,28 @@ class ConfirmationModal extends Component
 
     protected $listeners = ['openConfirmationModal' => 'open'];
 
-    // CHANGE THE METHOD SIGNATURE from `array $data` to individual parameters
     public function open(string $title, string $message, string $confirmAction, int $itemId)
     {
         $this->title = $title;
         $this->message = $message;
         $this->confirmAction = $confirmAction;
         $this->itemId = $itemId;
-        $this->showModal = true;
-    }
 
-    public function close()
-    {
-        $this->showModal = false;
+        // Dispatch an event for Alpine to open the modal
+        $this->dispatch('open-modal', 'confirmation-modal');
     }
 
     public function confirm()
     {
+        // Dispatch the action to the parent component (e.g., 'deleteDeck')
         $this->dispatch($this->confirmAction, $this->itemId);
-        $this->close();
+
+        // Dispatch an event for Alpine to close this modal
+        $this->dispatch('close-modal', 'confirmation-modal');
     }
 
     public function render()
     {
-        return view('livewire.components.confirmation-modal')->layout('layouts.modals');
+        return view('livewire.components.confirmation-modal');
     }
 }

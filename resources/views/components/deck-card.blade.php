@@ -12,7 +12,12 @@
                 class="h-9 w-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70">
             <i class="fa-solid fa-pen-to-square"></i>
         </button>
-        <button wire:click.prevent="$dispatch('openConfirmationModal', { title: 'Delete Deck', message: 'Are you sure?', confirmAction: 'deleteDeck', itemId: {{ $deck->id }} })" title="Delete Deck"
+        <button wire:click="$dispatch('openConfirmationModal', {
+            title: 'Delete Deck',
+            message: 'Are you sure you want to delete this deck?',
+            confirmAction: 'deleteDeck',
+            itemId: {{ $deck->id }}
+        })" title="Delete Deck"
                 class="h-9 w-9 flex items-center justify-center rounded-full bg-black/50 backdrop-blur-sm text-white hover:bg-black/70">
             <i class="fa-solid fa-trash-can"></i>
         </button>

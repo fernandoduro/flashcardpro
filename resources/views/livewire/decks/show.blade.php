@@ -41,7 +41,12 @@
                                         title="Edit Card">
                                     <i class="fa-solid fa-fw fa-pen-to-square"></i>
                                 </button>
-                                <button wire:click="$dispatch('openConfirmationModal', { title: 'Remove Card', message: 'Are you sure?', confirmAction: 'deleteCard', itemId: {{ $card->id }} })"
+                                <button wire:click="$dispatch('openConfirmationModal', {
+                                            title: 'Delete Deck',
+                                            message: 'Are you sure you want to delete this deck?',
+                                            confirmAction: 'deleteCard',
+                                            itemId: {{ $card->id }}
+                                        })"
                                         class="h-8 w-8 flex items-center justify-center rounded-full bg-black/10 text-gray-700 hover:bg-black/20"
                                         title="Remove Card">
                                     <i class="fa-solid fa-fw fa-trash-can"></i>
@@ -50,7 +55,7 @@
 
                             {{-- Card Content --}}
                             <div class="flex flex-col h-full">
-                                <p class="font-semibold text-gray-800">{{ $card->question }}</p>
+                                <p class="font-semibold text-gray-800 mt-6 mb-4">{{ $card->question }}</p>
                                 
                                 <p class="text-gray-600 flex-grow">{{ $card->answer }}</p>
                             </div>
