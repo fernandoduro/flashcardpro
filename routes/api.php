@@ -1,24 +1,44 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\StudyController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\DeckController;
-use App\Http\Controllers\Api\AuthController; // We will create this next
+use App\Http\Controllers\Api\StudyController;
+use Illuminate\Support\Facades\Route;
 
-// Public API route for getting a token
-Route::post('/login', [AuthController::class, 'login']);
+/*
+|--------------------------------------------------------------------------
+| API Routes
+|--------------------------------------------------------------------------
+|
+| Here is all API routes for the application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "api" middleware group.
+|
+*/
 
-// Protected API routes
-Route::middleware(['auth:sanctum', 'log.api'])->group(function () {
-    // Your existing routes are now protected by token auth
-    Route::get('/decks', [DeckController::class, 'index']);
-    Route::get('/decks/{deck}/cards', [DeckController::class, 'cards']);
+// Authentication Routes
+Route::controller(AuthController::class)->group(function () {
+    Route::post('/login', 'login')->name('api.login');
 
-    Route::post('/studies', [StudyController::class, 'store']);
-    Route::patch('/studies/{study}/complete', [StudyController::class, 'complete']);
-    Route::post('/study-results', [StudyController::class, 'recordResult']);
+    // Protected logout route
+    Route::post('/logout', 'logout')->name('api.logout')->middleware('auth:sanctum');
+});
 
-    // Route for revoking a token
-    Route::post('/logout', [AuthController::class, 'logout']);
+// Protected Application Routes
+Route::middleware(['auth:sanctum', 'log.api'])->name('api.')->group(function () {
+
+    // Deck Routes
+    Route::controller(DeckController::class)->prefix('decks')->name('decks.')->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{deck}/cards', 'cards')->name('cards');
+    });
+
+    // Study Routes
+    Route::controller(StudyController::class)->prefix('studies')->name('studies.')->group(function () {
+        Route::post('/', 'store')->name('store');
+        Route::patch('/{study}/complete', 'complete')->name('complete');
+    });
+
+    // Study Result Route
+    Route::post('/study-results', [StudyController::class, 'recordResult'])->name('study-results.store');
 });
