@@ -7,24 +7,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-// Authenticated Routes
-Route::middleware('auth')->group(function () {
-    Route::get('/decks', Decks\Index::class)->name('decks.index');
-    Route::get('/decks/create', Decks\Form::class)->name('decks.form');
-    Route::get('/decks/{deck}/cards/create', Cards\Form::class)->name('decks.cards.form');
-});
-
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/decks', Decks\Index::class)->name('decks.index');
+    Route::get('/decks/create', Decks\Form::class)->name('decks.form');
     Route::get('/decks/{deck}', Decks\Show::class)->name('decks.show');
+    Route::get('/decks/{deck}/cards/create', Cards\Form::class)->name('decks.cards.form');
     Route::view('profile', 'profile')->name('profile');
     Route::get('/statistics', Statistics\Index::class)->name('statistics.index');
 });
