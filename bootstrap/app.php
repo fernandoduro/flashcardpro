@@ -19,7 +19,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->alias([
             'log.api' => LogApiRequests::class,
-        ]);    })
+        ]);   
+        $middleware->validateCsrfTokens(except: [
+            'api/*',
+        ]);
+ 
+    })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
