@@ -34,7 +34,7 @@
 
                     {{-- Public Toggle --}}
                     <div class="flex items-center">
-                        <input wire:model="isPublic" type="checkbox" id="isPublic" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                        <input wire:model="isPublic" type="checkbox" id="isPublic" class="h-4 w-4 text-primary-600 border-gray-300 rounded">
                         <label for="isPublic" class="ml-2 block text-sm text-gray-900">Make this deck public?</label>
                     </div>
 
@@ -57,19 +57,19 @@
                                 @endif
                             </div>
                             <div>
-                                <input type="file" wire:model="coverImage" id="coverImage" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
+                                <input type="file" wire:model="coverImage" id="coverImage" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
                                 <div wire:loading wire:target="coverImage" class="text-sm text-gray-500 mt-1">Uploading...</div>
                             </div>
                         </div>
                         @error('coverImage') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
                     </div>
-                    
+
                     {{-- Actions --}}
                     <div class="flex justify-end space-x-4">
                         <button type="button" @click="$wire.close()" class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300">
                             Cancel
                         </button>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700">
                             {{-- DYNAMIC BUTTON TEXT --}}
                             @if ($editingDeck)
                                 Save Changes

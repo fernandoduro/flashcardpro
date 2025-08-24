@@ -1,7 +1,7 @@
 @props(['dispatch', 'text', 'deckId'])
 
 <button wire:click="$dispatch('{{ $dispatch }}', {{ !empty($deckId) ? '{ deckId: ' . $deckId . ' }' : '{}' }})"
-    class="cursor-pointer flex items-center justify-center w-auto h-14 px-6 bg-primary rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-transform transform hover:scale-105">
-    <svg xmlns="http://www.w.org/2000/svg" class="h-4 w-4 text-white mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+    class="inline-flex items-center px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-500 active:bg-primary-700 focus:outline-none focus:border-primary-700 focus:ring ring-primary-300 disabled:opacity-25 transition ease-in-out duration-150">
+    <i class="fa-solid fa-plus"></i>
     <span class="text-white font-semibold text-md">{{ $text }}</span>
 </button>
