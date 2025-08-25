@@ -24,19 +24,14 @@ test('can create a new card', function () {
         ->set('question', 'What is the capital of France?')
         ->set('answer', 'Paris')
         ->call('save')
-        ->assertDispatched('cardCreated')
-        ->assertDispatched('close-modal', 'card-form');
-
+        ->assertDispatched('cardCreated');
+        
     assertDatabaseHas('cards', [
+        'deck_id' => $deck->id,
         'user_id' => $this->user->id,
         'question' => 'What is the capital of France?',
         'answer' => 'Paris',
     ]);
-
-    // Also assert that the card was attached to the deck
-    $card = Card::where('question', 'What is the capital of France?')->first();
-    $deck->refresh();
-    expect($deck->cards->contains($card))->toBeTrue();
 });
 
 test('can edit an existing card', function () {

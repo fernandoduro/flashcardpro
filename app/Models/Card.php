@@ -9,15 +9,15 @@ class Card extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'question', 'answer', 'difficulty'];
+    protected $fillable = ['user_id', 'question', 'answer', 'deck_id', 'difficulty'];
 
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function decks()
+    public function deck()
     {
-        return $this->belongsToMany(Deck::class, 'card_deck');
+        return $this->belongsTo(Deck::class);
     }
 }

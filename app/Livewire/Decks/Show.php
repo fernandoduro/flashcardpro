@@ -33,9 +33,6 @@ class Show extends Component
         $card = Card::findOrFail($cardId);
         $this->authorize('delete', $card);
 
-        // Note: In the future, we might want to just detach the card from the deck, not delete the card itself.
-        // $this->deck->cards()->detach($cardId);
-
         $card->delete();
 
         $this->refreshCardList();

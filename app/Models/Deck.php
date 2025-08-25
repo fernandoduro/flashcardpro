@@ -18,7 +18,7 @@ class Deck extends Model
 
     public function cards()
     {
-        return $this->belongsToMany(Card::class, 'card_deck');
+        return $this->hasMany(Card::class);
     }
 
     public function studies()

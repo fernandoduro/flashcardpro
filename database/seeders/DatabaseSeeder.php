@@ -22,8 +22,14 @@ class DatabaseSeeder extends Seeder
             ]);
             Deck::factory(3)
                 ->for($user1)
-                ->has(Card::factory()->count(10)->for($user1))
-                ->create();
+                ->create()->each(function ($deck) {
+                // For each created deck, create 10 cards that belong to it
+                Card::factory(10)->create([
+                    'deck_id' => $deck->id,
+                    'user_id' => $deck->user_id
+                ]);
+            });
+           
         }
 
         $this->command->info('Seeding Cyberpunk Lore deck...');
@@ -65,15 +71,16 @@ class DatabaseSeeder extends Seeder
             ['question' => 'What is the title for a heavily augmented mercenary, bodyguard, or assassin, considered the "street samurai" of the Cyberpunk world?', 'answer' => 'Solo'],
         ];
 
-        // 4. Loop through the cards, create them if they don't exist, and attach them to the deck
         foreach ($cyberpunkCards as $cardData) {
-            $card = Card::firstOrCreate(
-                ['question' => $cardData['question'], 'user_id' => $user->id],
-                ['answer' => $cardData['answer']]
+            $deck->cards()->firstOrCreate(
+                [
+                    'question' => $cardData['question'],
+                    'user_id' => $user->id,
+                ],
+                [
+                    'answer' => $cardData['answer']
+                ]
             );
-
-            // Attach the card to the deck if it's not already attached
-            $deck->cards()->syncWithoutDetaching($card->id);
         }
 
         $this->command->info('Cyberpunk Lore deck seeded successfully!');

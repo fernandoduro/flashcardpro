@@ -27,12 +27,17 @@ test('a user cannot view a deck they do not own', function () {
 test('can remove a card from a deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->for($user)->create();
-    $card = Card::factory()->for($user)->create();
-    $deck->cards()->attach($card);
+
+    // Create a card that belongs to this deck
+    $card = Card::factory()->create([
+        'user_id' => $user->id,
+        'deck_id' => $deck->id,
+    ]);
 
     actingAs($user);
 
-    Livewire::test(DeckShow::class, ['deck' => $deck])
+    // Pass a fresh instance of the deck to ensure the relationship is loaded
+    Livewire::test(DeckShow::class, ['deck' => $deck->fresh()])
         ->call('deleteCard', $card->id);
 
     $this->assertDatabaseMissing('cards', ['id' => $card->id]);

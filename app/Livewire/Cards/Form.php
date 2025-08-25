@@ -67,7 +67,7 @@ class Form extends Component
     {
         $this->validate();
 
-        if ($this->editingCard) {
+        if ($this->editingCard) {   
             $this->authorize('update', $this->editingCard);
             $this->editingCard->update([
                 'question' => $this->question,
@@ -77,12 +77,12 @@ class Form extends Component
         } else {
             $this->authorize('create', Card::class);
 
-            $user = auth()->user();
-            $card = $user->cards()->create([
+            $this->deck->cards()->create([
                 'question' => $this->question,
                 'answer' => $this->answer,
+                'user_id' => auth()->id()
             ]);
-            $this->deck->cards()->attach($card->id);
+
             $this->dispatch('cardCreated');
         }
 

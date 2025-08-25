@@ -37,15 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     // Study route
-    Route::get('/study/{deck}', function (Request $request, Deck $deck) {
-        // Option A (Recommended): Use the request helper
-        $request->user()->can('view', $deck);
-        
-        // Your original logic was also good, just without `$this`
-        if (auth()->user()->cannot('view', 'deck')) {
-            abort(403);
-        }
-
+    Route::get('/study/{deck}', function (Deck $deck) {
         return view('study.show', ['deck' => $deck]);
     })->name('study.show');
 });

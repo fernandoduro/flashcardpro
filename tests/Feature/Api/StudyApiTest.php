@@ -17,11 +17,15 @@ test('a user can start a study session for their own deck', function () {
         ->assertJsonStructure(['study_id']);
 });
 
-test('a user can fetch shuffled cards for their own deck', function() {
+test('a user can fetch shuffled cards for their own deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->for($user)->create();
-    $cards = Card::factory(5)->for($user)->create();
-    $deck->cards()->attach($cards->pluck('id'));
+
+    // Create 5 cards that belong to this specific user and deck
+    Card::factory(5)->create([
+        'user_id' => $user->id,
+        'deck_id' => $deck->id,
+    ]);
 
     actingAs($user)
         ->getJson("/api/decks/{$deck->id}/cards")
