@@ -9,7 +9,7 @@ class Card extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'question', 'answer', 'deck_id', 'difficulty'];
+    protected $fillable = ['user_id', 'question', 'answer', 'deck_id'];
 
     public function user()
     {

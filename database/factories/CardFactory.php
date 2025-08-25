@@ -15,7 +15,6 @@ class CardFactory extends Factory
             'deck_id' => Deck::factory(),
             'question' => rtrim($this->faker->sentence(), '.') . '?',
             'answer' => $this->faker->paragraph(),
-            'difficulty' => $this->faker->randomElement(['easy', 'medium', 'hard']),
         ];
     }
 }

@@ -290,10 +290,6 @@ components:
         answer:
           type: string
           example: "Neil Armstrong"
-        difficulty:
-          type: string
-          enum: [easy, medium, hard]
-          example: "medium"
 
     ErrorValidation:
       type: object
