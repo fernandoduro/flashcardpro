@@ -114,6 +114,6 @@ class Index extends Component
     public function render(): View
     {
         return view('livewire.statistics.index')
-            ->layout('layouts.app', ['title' => 'My Statistics']);
+            ->layout('layouts.app', ['title' => 'Statistics']);
     }
 }
