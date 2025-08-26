@@ -4,16 +4,19 @@ namespace App\Livewire\Decks;
 
 use App\Models\Card;
 use App\Models\Deck;
+use App\CardGenerator\AiCardGenerator;
 use Illuminate\Contracts\View\View; 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Illuminate\Support\Facades\Http;
 
 class Show extends Component
 {
     use AuthorizesRequests;
 
     public Deck $deck;
+    public bool $isGenerating = false;
 
     /**
      * Mount the component and authorize the user.
@@ -46,6 +49,50 @@ class Show extends Component
     public function refreshCardList(): void
     {
         $this->deck = $this->deck->fresh()->load('cards');
+    }
+
+
+    public function generateAiCards(): void
+    {
+        $this->authorize('update', $this->deck);
+        $this->isGenerating = true;
+
+        $cardGenerator = new AiCardGenerator();
+        $cards = $cardGenerator->generate(theme: $this->deck->name, count: 5);
+
+        if (empty($cards)) {
+            // Handle the failure
+            $this->dispatch('flash-message', [
+                'type' => 'error',
+                'message' => 'Sorry, the AI card generator failed. Please try again.'
+            ]);
+            $this->isGenerating = false;
+            return;
+        }
+
+        $userId = auth()->id();
+
+        try {
+            foreach ($cards as $cardData) {
+                $this->deck->cards()->create([
+                    'question' => $cardData['question'],
+                    'answer' => $cardData['answer'],
+                    'user_id' => $userId,
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Since the response from AI is unpredictable, we might run into issues saving the cards.
+            // That why we put this in a try-catch block.
+            $this->dispatch('flash-message', [
+                'type' => 'error',
+                'message' => 'An error occurred while saving generated cards. Please try again.'
+            ]);
+            $this->isGenerating = false;
+            return;
+        }
+
+        $this->isGenerating = false;
+        $this->refreshCardList();
     }
 
     /**

@@ -56,5 +56,8 @@
                 localStorage.setItem('api_token', '{{ session('api_token') }}');
             </script>
         @endif
+
+       <x-flash-message />
+
     </body>
 </html>

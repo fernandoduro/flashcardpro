@@ -31,6 +31,7 @@ Route::middleware(['auth:sanctum', 'log.api'])->name('api.')->group(function () 
     Route::controller(DeckController::class)->prefix('decks')->name('decks.')->group(function () {
         Route::get('/', 'index')->name('index');
         Route::get('/{deck}/cards', 'cards')->name('cards');
+        Route::post('/{deck}/cards', 'storeCard')->name('cards.store');
     });
 
     // Study Routes

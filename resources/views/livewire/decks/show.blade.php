@@ -21,7 +21,20 @@
                     <i class="fa-solid fa-play"></i>
                     Study This Deck
                 </a>
-                <x-fab-link dispatch="openCreateCardModal" text="Add Card" deckId="{{ $deck->id }}" />
+                <div class="flex items-center space-x-2">
+                    <button wire:click="generateAiCards" wire:loading.attr="disabled"
+                            class="inline-flex items-center gap-x-2 px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 transition-colors disabled:opacity-75">
+                        <span wire:loading.remove wire:target="generateAiCards">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            Generate AI Cards
+                        </span>
+                        <span wire:loading wire:target="generateAiCards">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            Generating...
+                        </span>
+                    </button>
+                    <x-fab-link dispatch="openCreateCardModal" text="Add Card" deckId="{{ $deck->id }}" />
+                </div>
             </div>
 
             {{-- Post-it Note Card Grid --}}
