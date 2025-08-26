@@ -23,6 +23,13 @@
                 font-style: normal;
             }
         </style>
+
+        <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+        <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+        <meta name="apple-mobile-web-app-title" content="FlashcardPRO" />
+        <link rel="manifest" href="/images/favicon/site.webmanifest" />
     </head>
     <body class="font-sans text-gray-900 antialiased">
         <div class="relative min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
@@ -34,7 +41,7 @@
             {{-- Logo --}}
             <div>
                 <a href="/" wire:navigate class="flex items-center space-x-3 text-3xl exo-2">
-                    FLASHCARDPRO
+                    FlashcardPRO
                 </a>
             </div>
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>FLAHSCARDPRO</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts (Merriweather, as configured in your app.css) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,6 +22,13 @@
             font-style: normal;
         }
     </style>
+
+    <link rel="icon" type="image/png" href="/images/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="/images/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="/images/favicon/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-title" content="FlashcardPRO" />
+    <link rel="manifest" href="/images/favicon/site.webmanifest" />
 </head>
 <body class="antialiased font-sans bg-gray-50">
     <div class="bg-white">
@@ -30,7 +37,7 @@
             <nav class="max-w-7xl mx-auto flex items-center justify-between p-6 lg:px-8" aria-label="Global">
                 <div class="flex lg:flex-1">
                     <a href="/" class="-m-1.5 p-1.5 flex items-center space-x-3">
-                        <span class="font-bold text-xl text-gray-900 whitespace-nowrap exo-2">FLASHCARDPRO</span>
+                        <span class="font-bold text-xl text-gray-900 whitespace-nowrap exo-2">{{ config('app.name', 'Laravel') }}</span>
                     </a>
                 </div>
                 <div class="flex lg:flex-1 justify-end">

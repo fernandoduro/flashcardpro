@@ -8,7 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\Attributes\Title;
 
+#[Title('Dashboard')]
 class Index extends Component
 {
     use AuthorizesRequests;

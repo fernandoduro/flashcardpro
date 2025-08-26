@@ -10,7 +10,9 @@ use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Http;
+use Livewire\Attributes\Title;
 
+#[Title('Deck: {deck.name}')]
 class Show extends Component
 {
     use AuthorizesRequests;

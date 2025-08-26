@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\Api\StoreStudyResultRequest;
 
 class StudyController extends Controller
 {
@@ -36,15 +37,9 @@ class StudyController extends Controller
         return response()->json(['message' => 'Study session completed.']);
     }
 
-    public function recordResult(Request $request): JsonResponse
+    public function recordResult(StoreStudyResultRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'study_id' => ['required', Rule::exists('studies', 'id')->where('user_id', $request->user()->id)],
-            'card_id' => ['required', Rule::exists('cards', 'id')->where('user_id', $request->user()->id)],
-            'is_correct' => ['required', 'boolean'],
-        ]);
-
-        StudyResult::create($data);
+        StudyResult::create($request->validated());
 
         return response()->json(['message' => 'Result recorded.'], 201);
     }

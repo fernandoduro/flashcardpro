@@ -18,7 +18,7 @@
             <div class="flex-shrink-0 flex items-center justify-center">
                 <a class="flex items-center text-xl font-bold text-gray-800 exo-2" href="{{ route('decks.index') }}" wire:navigate>
                     <img class="block h-10 w-auto mr-2" src="{{ asset('images/logo.png') }}" alt="FlashcardPro Logo">
-                    <span>FLASHCARDPRO</span>
+                    <span>{{ config('app.name', 'Laravel') }}</span>
                 </a>
             </div>
 

@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use App\Http\Requests\Api\StoreCardRequest;
 
 class DeckController extends Controller
 {
@@ -33,19 +34,12 @@ class DeckController extends Controller
         return CardResource::collection($deck->cards()->inRandomOrder()->get());
     }
 
-    public function storeCard(Request $request, Deck $deck): CardResource
+    public function storeCard(StoreCardRequest $request, Deck $deck): CardResource
     {
         // Authorize that the user can add cards to this deck
         $this->authorize('update', $deck);
 
-        $validated = $request->validate([
-            'question' => ['required', 'string', 'min:5'],
-            'answer' => ['required', 'string', 'min:1'],
-        ]);
-
-        $card = $deck->cards()->create([
-            'question' => $validated['question'],
-            'answer' => $validated['answer'],
+        $card = $deck->cards()->create($request->validated() + [
             'user_id' => $request->user()->id,
         ]);
 
