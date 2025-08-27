@@ -84,20 +84,20 @@ docker-compose up -d
 ```
 
 **4. Install Composer Dependencies**
-docker-compose exec laravel.test composer install
+docker-compose exec flashcardpro composer install
 
 **5. Finalize Setup**
 Run these commands to generate the application key, run migrations, and link the storage directory.
 ```powershell
-docker-compose exec laravel.test php artisan key:generate
-docker-compose exec laravel.test php artisan migrate:fresh --seed
-docker-compose exec laravel.test php artisan storage:link
+docker-compose exec flashcardpro php artisan key:generate
+docker-compose exec flashcardpro php artisan migrate:fresh --seed
+docker-compose exec flashcardpro php artisan storage:link
 ```
 
 **6. Build Frontend Assets**
 Install Node.js dependencies and start the Vite development server.
 ```powershell
-docker-compose exec laravel.test npm install
+docker-compose exec flashcardpro npm install
 npm run dev
 ```
 *(Note: You will need to keep the `npm run dev` process running in its own dedicated terminal while you use the application).*
@@ -154,7 +154,7 @@ You can also create your own account via the registration page.
 
 The project has a comprehensive test suite written with Pest. To run all tests, execute the following command:
 ```powershell
-docker-compose exec laravel.test php artisan test
+docker-compose exec flashcardpro php artisan test
 ```
 
 ---
@@ -212,17 +212,17 @@ Before diving into specific issues, verify these essentials:
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-docker-compose exec laravel.test php artisan optimize:clear
+docker-compose exec flashcardpro php artisan optimize:clear
 
 # Restart containers to ensure fresh state
 docker-compose down
 docker-compose up -d
 
 # Regenerate autoloader
-docker-compose exec laravel.test composer dump-autoload
+docker-compose exec flashcardpro composer dump-autoload
 
 # If still failing, check routes
-docker-compose exec laravel.test php artisan route:list --path=api
+docker-compose exec flashcardpro php artisan route:list --path=api
 ```
 
 **Prevention:** Always run `php artisan optimize:clear` after making routing changes.
@@ -237,17 +237,17 @@ docker-compose exec laravel.test php artisan route:list --path=api
 **Solutions:**
 ```bash
 # 1. Verify API token generation
-docker-compose exec laravel.test php artisan tinker
+docker-compose exec flashcardpro php artisan tinker
 # In tinker:
 $user = App\Models\User::first();
 $user->tokens()->delete(); // Clear old tokens
 $user->createToken('test')->plainTextToken;
 
 # 2. Check if Vite dev server is running
-docker-compose exec laravel.test ps aux | grep node
+docker-compose exec flashcardpro ps aux | grep node
 
 # 3. Rebuild assets if needed
-docker-compose exec laravel.test npm run build
+docker-compose exec flashcardpro npm run build
 
 # 4. Clear browser cache and localStorage
 # Open browser dev tools → Application → Local Storage → Clear
@@ -265,7 +265,7 @@ docker-compose exec laravel.test npm run build
 **Solutions:**
 ```bash
 # 1. Check API key configuration
-docker-compose exec laravel.test php artisan tinker
+docker-compose exec flashcardpro php artisan tinker
 # In tinker:
 dd(env('GEMINI_API_KEY')); // Should not be null
 
@@ -279,7 +279,7 @@ curl -H "x-goog-api-key: YOUR_API_KEY" \
      -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
 
 # 4. Check application logs
-docker-compose exec laravel.test tail -f storage/logs/laravel.log
+docker-compose exec flashcardpro tail -f storage/logs/laravel.log
 ```
 
 **Prevention:** Always set either `GEMINI_API_KEY` or `OPENAI_API_KEY` in your `.env` file.
@@ -300,12 +300,12 @@ docker-compose ps mysql
 cat .env | grep DB_
 
 # 3. Test database connection
-docker-compose exec laravel.test php artisan tinker
+docker-compose exec flashcardpro php artisan tinker
 # In tinker:
 DB::connection()->getPdo();
 
 # 4. Reset database if needed
-docker-compose exec laravel.test php artisan migrate:fresh --seed
+docker-compose exec flashcardpro php artisan migrate:fresh --seed
 
 # 5. Check MySQL logs
 docker-compose logs mysql
@@ -323,13 +323,13 @@ docker-compose logs mysql
 **Solutions:**
 ```bash
 # 1. Install dependencies
-docker-compose exec laravel.test npm install
+docker-compose exec flashcardpro npm install
 
 # 2. Start Vite dev server
 npm run dev
 
 # 3. Build for production
-docker-compose exec laravel.test npm run build
+docker-compose exec flashcardpro npm run build
 
 # 4. Clear Vite cache
 rm -rf node_modules/.vite
@@ -350,11 +350,11 @@ netstat -tulpn | grep 5173
 **Solutions:**
 ```bash
 # 1. Fix ownership (run as root)
-docker-compose exec -u root laravel.test chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
+docker-compose exec -u root flashcardpro chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 2. Fix permissions
-docker-compose exec laravel.test chmod -R 755 storage
-docker-compose exec laravel.test chmod -R 755 bootstrap/cache
+docker-compose exec flashcardpro chmod -R 755 storage
+docker-compose exec flashcardpro chmod -R 755 bootstrap/cache
 
 # 3. Restart containers
 docker-compose down
@@ -373,18 +373,18 @@ docker-compose up -d
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-docker-compose exec laravel.test php artisan optimize:clear
+docker-compose exec flashcardpro php artisan optimize:clear
 
 # Clear specific caches
-docker-compose exec laravel.test php artisan config:clear
-docker-compose exec laravel.test php artisan route:clear
-docker-compose exec laravel.test php artisan view:clear
+docker-compose exec flashcardpro php artisan config:clear
+docker-compose exec flashcardpro php artisan route:clear
+docker-compose exec flashcardpro php artisan view:clear
 
 # Regenerate autoloader
-docker-compose exec laravel.test composer dump-autoload
+docker-compose exec flashcardpro composer dump-autoload
 
 # Restart PHP-FPM if using production
-docker-compose exec laravel.test php artisan optimize
+docker-compose exec flashcardpro php artisan optimize
 ```
 
 **Prevention:** Run `php artisan optimize:clear` after any structural changes.
@@ -399,7 +399,7 @@ docker-compose exec laravel.test php artisan optimize
 **Solutions:**
 ```bash
 # 1. Check slow queries
-docker-compose exec laravel.test php artisan tinker
+docker-compose exec flashcardpro php artisan tinker
 # In tinker:
 DB::listen(function ($query) {
     if ($query->time > 1000) { // Log queries slower than 1s
@@ -416,10 +416,10 @@ DB::listen(function ($query) {
 DB_LOG_QUERIES=true
 
 # 3. Check memory usage
-docker-compose exec laravel.test php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
+docker-compose exec flashcardpro php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
 
 # 4. Optimize images and assets
-docker-compose exec laravel.test php artisan storage:link
+docker-compose exec flashcardpro php artisan storage:link
 ```
 
 **Prevention:** Use computed property caching and eager loading as implemented in the Statistics component.
@@ -438,14 +438,14 @@ cat .env | grep APP_ENV
 cat .env | grep APP_DEBUG
 
 # 2. Clear configuration cache
-docker-compose exec laravel.test php artisan config:clear
-docker-compose exec laravel.test php artisan config:cache
+docker-compose exec flashcardpro php artisan config:clear
+docker-compose exec flashcardpro php artisan config:cache
 
 # 3. Check cached configuration
-docker-compose exec laravel.test php artisan config:show app
+docker-compose exec flashcardpro php artisan config:show app
 
 # 4. Regenerate application key
-docker-compose exec laravel.test php artisan key:generate
+docker-compose exec flashcardpro php artisan key:generate
 ```
 
 **Prevention:** Use `php artisan config:cache` in production but `php artisan config:clear` during development.
@@ -456,14 +456,14 @@ If you encounter an issue not covered here:
 
 1. **Check the logs:**
    ```bash
-   docker-compose exec laravel.test tail -f storage/logs/laravel.log
-   docker-compose logs laravel.test
+   docker-compose exec flashcardpro tail -f storage/logs/laravel.log
+   docker-compose logs flashcardpro
    ```
 
 2. **Verify your environment:**
    ```bash
-   docker-compose exec laravel.test php artisan about
-   docker-compose exec laravel.test composer show
+   docker-compose exec flashcardpro php artisan about
+   docker-compose exec flashcardpro composer show
    ```
 
 3. **Test API endpoints:**
@@ -477,9 +477,9 @@ If you encounter an issue not covered here:
    # Full system reset
    docker-compose down -v
    docker-compose up -d
-   docker-compose exec laravel.test composer install
-   docker-compose exec laravel.test php artisan migrate:fresh --seed
-   docker-compose exec laravel.test npm install && npm run dev
+   docker-compose exec flashcardpro composer install
+   docker-compose exec flashcardpro php artisan migrate:fresh --seed
+   docker-compose exec flashcardpro npm install && npm run dev
    ```
 
 **Remember:** Most issues can be resolved by clearing caches and restarting services. Always check logs first when debugging!
