@@ -20,4 +20,20 @@ class StudyResult extends Model
     {
         return $this->belongsTo(Card::class);
     }
+
+    /**
+     * Get the user that owns this study result through the study
+     */
+    public function user()
+    {
+        return $this->hasOneThrough(User::class, Study::class, 'id', 'id', 'study_id', 'user_id');
+    }
+
+    /**
+     * Get the deck that this study result belongs to through the study
+     */
+    public function deck()
+    {
+        return $this->hasOneThrough(Deck::class, Study::class, 'id', 'id', 'study_id', 'deck_id');
+    }
 }

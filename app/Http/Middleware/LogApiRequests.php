@@ -34,16 +34,44 @@ class LogApiRequests
         // 1. Apply Rate Limiting
         $this->ensureIsNotRateLimited($request);
 
-        // 2. Log the Request
-        Log::info('API Request:', [
+        $startTime = microtime(true);
+
+        // 2. Log the Request with enhanced context
+        Log::info('API Request Started:', [
             'url' => $request->fullUrl(),
             'method' => $request->method(),
             'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
             'user' => $request->user()?->id,
+            'route' => $request->route()?->getName(),
+            'headers' => [
+                'accept' => $request->header('Accept'),
+                'content_type' => $request->header('Content-Type'),
+                'authorization_type' => $request->bearerToken() ? 'bearer' : 'none',
+            ],
+            'request_size' => strlen($request->getContent()),
+            'timestamp' => now()->toISOString(),
         ]);
 
-        // 3. Pass the request to the next middleware
-        return $next($request);
+        // 3. Pass the request to the next middleware and capture response
+        $response = $next($request);
+
+        $endTime = microtime(true);
+        $duration = round(($endTime - $startTime) * 1000, 2); // Convert to milliseconds
+
+        // 4. Log the response
+        Log::info('API Request Completed:', [
+            'url' => $request->fullUrl(),
+            'method' => $request->method(),
+            'status_code' => $response->getStatusCode(),
+            'duration_ms' => $duration,
+            'response_size' => strlen($response->getContent()),
+            'user' => $request->user()?->id,
+            'route' => $request->route()?->getName(),
+            'timestamp' => now()->toISOString(),
+        ]);
+
+        return $response;
     }
 
     /**

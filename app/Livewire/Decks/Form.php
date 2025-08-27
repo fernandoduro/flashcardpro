@@ -34,7 +34,12 @@ class Form extends Component
                     : Rule::unique('decks')->where('user_id', auth()->id())
             ],
             'isPublic' => ['required', 'boolean'],
-            'coverImage' => ['nullable', 'image', 'max:2048'], // Max 2MB
+            'coverImage' => [
+                'nullable',
+                'image',
+                'max:2048', // Max 2MB
+                'mimes:jpeg,png,jpg,gif,webp',
+            ],
         ];
     }
 

@@ -109,8 +109,21 @@ const apiClient = axios.create({
     headers: {
         'Authorization': `Bearer ${localStorage.getItem('api_token')}`,
         'Accept': 'application/json',
-    }
+    },
+    timeout: 30000, // 30 second timeout
 });
+
+// Add response interceptor for better error handling
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // Enhanced error handling with retry logic for transient failures
+        if (error.code === 'ECONNABORTED' || error.response?.status >= 500) {
+            console.warn('API request failed, might be transient:', error.message);
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Lifecycle Hook
 onMounted(async () => {
@@ -122,10 +135,20 @@ onMounted(async () => {
     }
 
     try {
-        const sessionResponse = await apiClient.post('/studies', { deck_id: props.deck.id });
+        // Retry logic for starting study session
+        const sessionResponse = await retryApiCall(
+            () => apiClient.post('/studies', { deck_id: props.deck.id }),
+            3,
+            'starting study session'
+        );
         studyId.value = sessionResponse.data.study_id;
 
-        const cardsResponse = await apiClient.get(`/decks/${props.deck.id}/cards`);
+        // Retry logic for fetching cards
+        const cardsResponse = await retryApiCall(
+            () => apiClient.get(`/decks/${props.deck.id}/cards`),
+            3,
+            'fetching cards'
+        );
         cards.value = cardsResponse.data.data;
 
         if (cards.value.length === 0) {
@@ -134,11 +157,49 @@ onMounted(async () => {
     } catch (err) {
         console.error("Failed to start study session:", err);
         // Provide a user-friendly error from the API response if available
-        error.value = err.response?.data?.message || "An unexpected API error occurred.";
+        if (err.response?.status === 401) {
+            error.value = "Your session has expired. Please log in again.";
+        } else if (err.response?.status === 403) {
+            error.value = "You don't have permission to access this deck.";
+        } else if (err.response?.status >= 500) {
+            error.value = "Server error occurred. Please try again in a few moments.";
+        } else {
+            error.value = err.response?.data?.message || "An unexpected API error occurred.";
+        }
     } finally {
         loading.value = false;
     }
 });
+
+// Utility function for retrying API calls with exponential backoff
+const retryApiCall = async (apiCall, maxRetries = 3, operation = 'operation') => {
+    let lastError;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            return await apiCall();
+        } catch (error) {
+            lastError = error;
+
+            // Don't retry on client errors (4xx) except 429 (rate limit)
+            if (error.response?.status >= 400 && error.response?.status < 500 && error.response?.status !== 429) {
+                throw error;
+            }
+
+            // Don't retry on the last attempt
+            if (attempt === maxRetries) {
+                break;
+            }
+
+            // Exponential backoff: wait 1s, 2s, 4s...
+            const delay = Math.pow(2, attempt - 1) * 1000;
+            console.warn(`API call attempt ${attempt} failed for ${operation}, retrying in ${delay}ms...`, error.message);
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+    }
+
+    throw lastError;
+};
 
 // Methods
 const revealAnswer = () => {

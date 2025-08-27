@@ -32,6 +32,21 @@ class StudyController extends Controller
     {
         $this->authorize('update', $study);
 
+        // Validate that the study belongs to the authenticated user
+        if ($study->user_id !== $request->user()->id) {
+            return response()->json(['message' => 'Unauthorized.'], 403);
+        }
+
+        // Check if study is already completed
+        if ($study->completed_at !== null) {
+            return response()->json(['message' => 'Study session is already completed.'], 422);
+        }
+
+        // Validate that the study was created recently (within last 24 hours)
+        if ($study->created_at->diffInHours(now()) > 24) {
+            return response()->json(['message' => 'Study session has expired.'], 422);
+        }
+
         $study->update(['completed_at' => now()]);
 
         return response()->json(['message' => 'Study session completed.']);

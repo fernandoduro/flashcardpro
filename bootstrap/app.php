@@ -5,6 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use \App\Http\Middleware\ApiVersionHeader;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -22,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);   
         $middleware->validateCsrfTokens(except: [
             'api/*',
+        ]);
+        $middleware->api(append: [
+            ApiVersionHeader::class,
         ]);
  
     })

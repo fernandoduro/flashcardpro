@@ -31,7 +31,13 @@ class DeckController extends Controller
     {
         $this->authorize('view', $deck);
 
-        return CardResource::collection($deck->cards()->inRandomOrder()->get());
+        // Use eager loading and optimize query
+        $cards = $deck->cards()
+            ->select(['id', 'question', 'answer', 'user_id', 'deck_id', 'created_at', 'updated_at'])
+            ->inRandomOrder()
+            ->get();
+
+        return CardResource::collection($cards);
     }
 
     public function storeCard(StoreCardRequest $request, Deck $deck): CardResource
