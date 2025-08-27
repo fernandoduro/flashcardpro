@@ -51,7 +51,7 @@ class AiCardGenerator
                 Provide me **{$count}** flashcards, keep the theme being  '{$theme}'.
 
                 Rules:
-                Keep the questions and answers short, with 20 words at most.
+                Keep the questions and answers short, questions with 40 words at most. And answers with 10 words at most.
                 Do NOT provide cards questions with multiple answers like \"Name X instaces of Y\" or \"Name a common/iconic Z\"
             ";
 

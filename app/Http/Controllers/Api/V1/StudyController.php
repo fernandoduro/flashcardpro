@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\Api\V1\StoreStudyResultRequest;
+
 use App\Http\Resources\ApiResponse;
 
 class StudyController extends Controller
@@ -18,6 +18,11 @@ class StudyController extends Controller
 
     public function store(Request $request): JsonResponse
     {
+        // Check if user is authenticated
+        if (!$request->user()) {
+            return ApiResponse::error('Authentication required', 401);
+        }
+
         $data = $request->validate([
             'deck_id' => ['required', Rule::exists('decks', 'id')->where('user_id', $request->user()->id)],
         ]);
@@ -57,9 +62,32 @@ class StudyController extends Controller
         return ApiResponse::success(null, 'Study session completed successfully');
     }
 
-    public function recordResult(StoreStudyResultRequest $request): JsonResponse
+    public function recordResult(Request $request): JsonResponse
     {
-        StudyResult::create($request->validated());
+        // Check if user is authenticated
+        if (!$request->user()) {
+            return ApiResponse::error('Authentication required', 401);
+        }
+
+        // Validate the request data
+        $data = $request->validate([
+            'study_id' => ['required', 'integer', 'exists:studies,id'],
+            'card_id' => ['required', 'integer', 'exists:cards,id'],
+            'is_correct' => ['required', 'boolean'],
+        ]);
+
+        // Find the study and verify ownership
+        $study = Study::find($data['study_id']);
+        if (!$study) {
+            return ApiResponse::error('Study session not found', 404);
+        }
+
+        if ($study->user_id !== $request->user()->id) {
+            return ApiResponse::error('Unauthorized access to study session', 403);
+        }
+
+        // Create the study result
+        StudyResult::create($data);
 
         return ApiResponse::success(null, 'Study result recorded successfully', 201);
     }

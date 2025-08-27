@@ -141,7 +141,17 @@ onMounted(async () => {
             3,
             'starting study session'
         );
-        studyId.value = sessionResponse.data.study_id;
+
+        // Debug: Log the response to ensure study_id is present
+        console.log('Study session created:', sessionResponse.data);
+
+        if (!sessionResponse.data || !sessionResponse.data.data || !sessionResponse.data.data.study_id) {
+            console.error('Invalid response structure:', sessionResponse.data);
+            throw new Error('Invalid response from study session creation - missing study_id');
+        }
+
+        studyId.value = sessionResponse.data.data.study_id;
+        console.log('Study ID set to:', studyId.value);
 
         // Retry logic for fetching cards
         const cardsResponse = await retryApiCall(
@@ -149,7 +159,17 @@ onMounted(async () => {
             3,
             'fetching cards'
         );
+
+        // Debug: Log the cards response
+        console.log('Cards response:', cardsResponse.data);
+
+        if (!cardsResponse.data || !cardsResponse.data.data) {
+            console.error('Invalid cards response structure:', cardsResponse.data);
+            throw new Error('Invalid response from cards fetch - missing data array');
+        }
+
         cards.value = cardsResponse.data.data;
+        console.log('Cards loaded:', cards.value.length, 'cards');
 
         if (cards.value.length === 0) {
             sessionFinished.value = true;
@@ -210,6 +230,21 @@ const recordResult = async (isCorrect) => {
     if (isCorrect) {
         correctAnswers.value++;
     }
+
+    // Validate that we have a valid study session
+    if (!studyId.value) {
+        console.error("No study session ID available");
+        error.value = "Study session not properly initialized. Please refresh and try again.";
+        return;
+    }
+
+    // Validate that we have a current card
+    if (!currentCard.value || !currentCard.value.id) {
+        console.error("No current card available");
+        error.value = "No card available to record result for.";
+        return;
+    }
+
     try {
         await apiClient.post('/study-results', {
             study_id: studyId.value,
@@ -219,7 +254,33 @@ const recordResult = async (isCorrect) => {
         nextCard();
     } catch (err) {
         console.error("Failed to record result:", err);
-        error.value = "Could not save your answer. Please check your connection and try again.";
+
+        // Handle specific error codes with user-friendly messages
+        if (err.response?.status === 401) {
+            error.value = "Your session has expired. Please log in again.";
+            localStorage.removeItem('api_token');
+            window.location.href = '/login';
+        } else if (err.response?.status === 403) {
+            error.value = "You don't have permission to record this result. Please try logging in again.";
+            localStorage.removeItem('api_token');
+            window.location.href = '/login';
+        } else if (err.response?.status === 422) {
+            // Validation errors
+            const validationErrors = err.response?.data?.errors;
+            if (validationErrors?.study_id) {
+                error.value = "Study session error. Please refresh the page and try again.";
+                // Reset the study session
+                studyId.value = null;
+            } else if (validationErrors?.card_id) {
+                error.value = "Card information is missing. Please refresh and try again.";
+            } else {
+                error.value = err.response?.data?.message || "Invalid data submitted.";
+            }
+        } else if (err.response?.status >= 500) {
+            error.value = "Server error occurred. Please try again in a few moments.";
+        } else {
+            error.value = err.response?.data?.message || "Could not save your answer. Please check your connection and try again.";
+        }
     }
 };
 
