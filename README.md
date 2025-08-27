@@ -70,7 +70,7 @@ This project is configured to run seamlessly with Laravel Sail (Docker).
 ---
 
 **1. Unzip the Project & Navigate**
-Unzip the submitted `flashcard-pro.zip` file and open a terminal in the project's root directory.
+Unzip the submitted `flashcardpro.zip` file and open a terminal in the project's root directory.
 
 **2. Prepare the Environment File**
 ```powershell
@@ -78,16 +78,21 @@ copy .env.example .env
 ```
 
 **3. Start the Docker Containers**
-The `docker-compose.yml` is configured to use the required PHP and MySQL versions.
+The `docker-compose.yml` is configured to use the required PHP and MySQL versions. You should have 3 containers running (`flashcardpro`,`mysql` and `selenium`).
+
 ```powershell
 docker-compose up -d
 ```
 
 **4. Install Composer Dependencies**
+
+```powershell
 docker-compose exec flashcardpro composer install
+```
 
 **5. Finalize Setup**
 Run these commands to generate the application key, run migrations, and link the storage directory.
+
 ```powershell
 docker-compose exec flashcardpro php artisan key:generate
 docker-compose exec flashcardpro php artisan migrate:fresh --seed
@@ -96,10 +101,12 @@ docker-compose exec flashcardpro php artisan storage:link
 
 **6. Build Frontend Assets**
 Install Node.js dependencies and start the Vite development server.
+
 ```powershell
 docker-compose exec flashcardpro npm install
-npm run dev
+docker-compose exec -it flashcardpro npm run dev
 ```
+
 *(Note: You will need to keep the `npm run dev` process running in its own dedicated terminal while you use the application).*
 
 **7. Access the Application**
@@ -129,8 +136,9 @@ The application requires the following environment variables:
 - `DB_PASSWORD` - Database password
 
 ### AI Services (Optional)
-- `GEMINI_API_KEY` - Google Gemini API key for AI card generation
-- `OPENAI_API_KEY` - OpenAI API key (experimental alternative)
+
+- `GEMINI_API_KEY` - (Recommended) Google Gemini API key for AI card generation ([How to get one](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjCx9vf8auPAxUFr5UCHWiYLpEQ-tANegQIIxAC&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DRVGbLSVFtIk%26t%3D21&usg=AOvVaw2aA_gMq6SXtJwBfDsUOOrr&opi=89978449)
+- `OPENAI_API_KEY` - OpenAI API key (experimental alternative) ([Where do I find one?](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
 - `AI_MAIN_ENGINE` - Preferred AI engine (gemini or openai)
 
 ### Docker enviroment(Optional)
@@ -142,7 +150,7 @@ The application requires the following environment variables:
 
 ## Test User Accounts
 
-The database seeder creates one pre-made account for immediate use:
+The database seeder creates one pre-made account for immediate use and testing:
 
 - **Email:** `admin@example.com` / **Password:** `password`
 
@@ -152,10 +160,25 @@ You can also create your own account via the registration page.
 
 ## Running the Test Suite
 
-The project has a comprehensive test suite written with Pest. To run all tests, execute the following command:
+The project has a comprehensive test suite. To run all tests, execute the following commands:
+
+#Pest tests 
 ```powershell
+copy .env.testing.example .env.testing
+docker-compose exec flashcardpro php artisan key:generate --env=testing
 docker-compose exec flashcardpro php artisan test
 ```
+
+#Laravel Dusk
+```powershell
+copy .env.dusk.local.example .env.dusk.local
+docker-compose exec flashcardpro php artisan key:generate --env=dusk.local
+docker-compose exec flashcardpro npm run build
+docker-compose exec flashcardpro touch /var/www/html/database/dusk.sqlite
+docker-compose exec flashcardpro chown -R sail:sail /var/www/html/database/dusk.sqlite
+docker-compose exec flashcardpro php artisan dusk
+```
+*(Note: Drop your `npm run dev` process, or it will overwrite built JS and CSS files, breaking the test. Dusk will also temporarily replace your .env with the .env.dusk.local).*
 
 ---
 
