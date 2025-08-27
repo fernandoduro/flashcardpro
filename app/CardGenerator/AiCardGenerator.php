@@ -100,7 +100,8 @@ class AiCardGenerator
                 $generatedCards = [[$generatedCards]];
             }
 
-            $generatedCards = $generatedCards[array_key_first($generatedCards)];
+            $firstKey = array_key_first($generatedCards);
+            $generatedCards = $firstKey !== null ? $generatedCards[$firstKey] : [];            
             
             Log::info('AI Card Generation: Generated cards successfully.', ['cards' => $generatedCards]);
 

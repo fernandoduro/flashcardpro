@@ -105,7 +105,7 @@ const progressPercentage = computed(() => {
 
 // Create a dedicated API client that includes the auth token
 const apiClient = axios.create({
-    baseURL: '/api',
+    baseURL: '/api/v1',
     headers: {
         'Authorization': `Bearer ${localStorage.getItem('api_token')}`,
         'Accept': 'application/json',

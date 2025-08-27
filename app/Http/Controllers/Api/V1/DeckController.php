@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CardResource;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use App\Http\Requests\Api\StoreCardRequest;
+use App\Http\Requests\Api\V1\StoreCardRequest;
 
 class DeckController extends Controller
 {
@@ -18,7 +18,7 @@ class DeckController extends Controller
 
     public function index(Request $request): AnonymousResourceCollection
     {
-        $decks = $decks = $request->user()
+        $decks = $request->user()
             ->decks()
             ->withCount('cards')
             ->latest()

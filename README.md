@@ -14,10 +14,28 @@
 - [Project Description](#project-description)
 - [Technologies Used](#technologies-used)
 - [Setup Instructions](#setup-instructions)
+- [Environment Variables](#environment-variables)
+  - [Required](#required)
+  - [Database](#database)
+  - [AI Services (Optional)](#ai-services-optional)
+  - [Docker enviroment(Optional)](#docker-enviromentoptional)
 - [Test User Accounts](#test-user-accounts)
 - [Running the Test Suite](#running-the-test-suite)
 - [Architectural Decisions](#architectural-decisions)
 - [Public API Overview](#public-api-overview)
+- [Troubleshooting](#troubleshooting)
+  - [Quick Start Checklist](#quick-start-checklist)
+  - [Common Issues \& Solutions](#common-issues--solutions)
+    - [1. **Test Failures**](#1-test-failures)
+    - [2. **Vue.js Study Session Not Loading**](#2-vuejs-study-session-not-loading)
+    - [3. **AI Card Generation Not Working**](#3-ai-card-generation-not-working)
+    - [4. **Database Connection Issues**](#4-database-connection-issues)
+    - [5. **Asset Compilation Issues**](#5-asset-compilation-issues)
+    - [6. **Docker Permission Errors**](#6-docker-permission-errors)
+    - [7. **Stale Cache Errors**](#7-stale-cache-errors)
+    - [8. **Performance Issues**](#8-performance-issues)
+    - [9. **Environment Configuration Problems**](#9-environment-configuration-problems)
+  - [Getting Help](#getting-help)
 - [AI Tool Usage Disclosure](#ai-tool-usage-disclosure)
 
 ---
@@ -90,6 +108,38 @@ npm run dev
 
 ---
 
+## Environment Variables
+
+The application requires the following environment variables:
+
+### Required
+- `APP_NAME` - Application name
+- `APP_ENV` - Environment (local, production, etc.)
+- `APP_KEY` - Laravel application key
+- `APP_DEBUG` - Debug mode (false in production)
+- `APP_URL` - Base application URL
+- `TELESCOPE_ENABLED` - Enable Laravel Telescope (false in production)
+
+### Database
+- `DB_CONNECTION` - Database driver (mysql, sqlite, etc.)
+- `DB_HOST` - Database host
+- `DB_PORT` - Database port
+- `DB_DATABASE` - Database name
+- `DB_USERNAME` - Database username
+- `DB_PASSWORD` - Database password
+
+### AI Services (Optional)
+- `GEMINI_API_KEY` - Google Gemini API key for AI card generation
+- `OPENAI_API_KEY` - OpenAI API key (experimental alternative)
+- `AI_MAIN_ENGINE` - Preferred AI engine (gemini or openai)
+
+### Docker enviroment(Optional)
+- `WWWGROUP` - 1000 for it to work on Windows 
+- `WWWUSER` - 1000 for it to work on Windows 
+- `FORWARD_DB_PORT` - 3309 or any other if host machine is occupied
+
+---
+
 ## Test User Accounts
 
 The database seeder creates one pre-made account for immediate use:
@@ -136,6 +186,303 @@ To use the API, a user must first log in via the web interface. An API token is 
 **Documentation:**
 A full, interactive Swagger/OpenAPI documentation page is available within the application at:
 - **URL:** [`/api/documentation`](http://localhost/api/documentation)
+
+---
+
+## Troubleshooting
+
+### Quick Start Checklist
+
+Before diving into specific issues, verify these essentials:
+
+- ✅ Docker Desktop is running
+- ✅ No other services are using ports 80, 3306, or 5173
+- ✅ `.env` file exists and contains required variables
+- ✅ Database is accessible and migrated
+- ✅ Frontend assets are compiled (`npm run dev` is running)
+
+### Common Issues & Solutions
+
+#### 1. **Test Failures**
+
+**Symptoms:**
+- Tests failing with 404 errors on API endpoints
+- `php artisan test` shows API route not found errors
+
+**Solutions:**
+```bash
+# Clear all Laravel caches
+docker-compose exec laravel.test php artisan optimize:clear
+
+# Restart containers to ensure fresh state
+docker-compose down
+docker-compose up -d
+
+# Regenerate autoloader
+docker-compose exec laravel.test composer dump-autoload
+
+# If still failing, check routes
+docker-compose exec laravel.test php artisan route:list --path=api
+```
+
+**Prevention:** Always run `php artisan optimize:clear` after making routing changes.
+
+#### 2. **Vue.js Study Session Not Loading**
+
+**Symptoms:**
+- Study session page shows blank or error message
+- Console shows "API token not found" error
+- JavaScript errors in browser developer tools
+
+**Solutions:**
+```bash
+# 1. Verify API token generation
+docker-compose exec laravel.test php artisan tinker
+# In tinker:
+$user = App\Models\User::first();
+$user->tokens()->delete(); // Clear old tokens
+$user->createToken('test')->plainTextToken;
+
+# 2. Check if Vite dev server is running
+docker-compose exec laravel.test ps aux | grep node
+
+# 3. Rebuild assets if needed
+docker-compose exec laravel.test npm run build
+
+# 4. Clear browser cache and localStorage
+# Open browser dev tools → Application → Local Storage → Clear
+```
+
+**Prevention:** Ensure `npm run dev` is running and API token is generated after login.
+
+#### 3. **AI Card Generation Not Working**
+
+**Symptoms:**
+- "Failed to generate cards" error message
+- AI generator returns null or empty results
+- API key errors in logs
+
+**Solutions:**
+```bash
+# 1. Check API key configuration
+docker-compose exec laravel.test php artisan tinker
+# In tinker:
+dd(env('GEMINI_API_KEY')); // Should not be null
+
+# 2. Verify AI engine setting
+dd(env('AI_MAIN_ENGINE', 'gemini')); // Should be 'gemini' or 'openai'
+
+# 3. Test AI service connectivity
+# For Gemini:
+curl -H "x-goog-api-key: YOUR_API_KEY" \
+     "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?alt=json" \
+     -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
+
+# 4. Check application logs
+docker-compose exec laravel.test tail -f storage/logs/laravel.log
+```
+
+**Prevention:** Always set either `GEMINI_API_KEY` or `OPENAI_API_KEY` in your `.env` file.
+
+#### 4. **Database Connection Issues**
+
+**Symptoms:**
+- `SQLSTATE[HY000]` or connection refused errors
+- Migrations fail to run
+- Application shows database connection errors
+
+**Solutions:**
+```bash
+# 1. Check database service status
+docker-compose ps mysql
+
+# 2. Verify database credentials in .env
+cat .env | grep DB_
+
+# 3. Test database connection
+docker-compose exec laravel.test php artisan tinker
+# In tinker:
+DB::connection()->getPdo();
+
+# 4. Reset database if needed
+docker-compose exec laravel.test php artisan migrate:fresh --seed
+
+# 5. Check MySQL logs
+docker-compose logs mysql
+```
+
+**Prevention:** Ensure Docker has sufficient resources and no port conflicts.
+
+#### 5. **Asset Compilation Issues**
+
+**Symptoms:**
+- CSS/JS files not loading or showing errors
+- Vite dev server not starting
+- Hot reload not working
+
+**Solutions:**
+```bash
+# 1. Install dependencies
+docker-compose exec laravel.test npm install
+
+# 2. Start Vite dev server
+npm run dev
+
+# 3. Build for production
+docker-compose exec laravel.test npm run build
+
+# 4. Clear Vite cache
+rm -rf node_modules/.vite
+
+# 5. Check for port conflicts
+netstat -tulpn | grep 5173
+```
+
+**Prevention:** Keep `npm run dev` running in a dedicated terminal during development.
+
+#### 6. **Docker Permission Errors**
+
+**Symptoms:**
+- `Permission denied` errors
+- Cannot write to storage or bootstrap/cache directories
+- File ownership issues
+
+**Solutions:**
+```bash
+# 1. Fix ownership (run as root)
+docker-compose exec -u root laravel.test chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 2. Fix permissions
+docker-compose exec laravel.test chmod -R 755 storage
+docker-compose exec laravel.test chmod -R 755 bootstrap/cache
+
+# 3. Restart containers
+docker-compose down
+docker-compose up -d
+```
+
+**Prevention:** Configure proper user permissions in docker-compose.yml for Windows development.
+
+#### 7. **Stale Cache Errors**
+
+**Symptoms:**
+- `ClassNotFoundException` after creating new classes
+- `RouteNotFoundException` after adding routes
+- Changes not reflected after code modifications
+
+**Solutions:**
+```bash
+# Clear all Laravel caches
+docker-compose exec laravel.test php artisan optimize:clear
+
+# Clear specific caches
+docker-compose exec laravel.test php artisan config:clear
+docker-compose exec laravel.test php artisan route:clear
+docker-compose exec laravel.test php artisan view:clear
+
+# Regenerate autoloader
+docker-compose exec laravel.test composer dump-autoload
+
+# Restart PHP-FPM if using production
+docker-compose exec laravel.test php artisan optimize
+```
+
+**Prevention:** Run `php artisan optimize:clear` after any structural changes.
+
+#### 8. **Performance Issues**
+
+**Symptoms:**
+- Slow page loads
+- High memory usage
+- Database query timeouts
+
+**Solutions:**
+```bash
+# 1. Check slow queries
+docker-compose exec laravel.test php artisan tinker
+# In tinker:
+DB::listen(function ($query) {
+    if ($query->time > 1000) { // Log queries slower than 1s
+        Log::info('Slow Query', [
+            'sql' => $query->sql,
+            'time' => $query->time,
+            'bindings' => $query->bindings
+        ]);
+    }
+});
+
+# 2. Enable query logging
+# Add to .env:
+DB_LOG_QUERIES=true
+
+# 3. Check memory usage
+docker-compose exec laravel.test php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
+
+# 4. Optimize images and assets
+docker-compose exec laravel.test php artisan storage:link
+```
+
+**Prevention:** Use computed property caching and eager loading as implemented in the Statistics component.
+
+#### 9. **Environment Configuration Problems**
+
+**Symptoms:**
+- Application not loading with correct settings
+- Environment variables not being read
+- Configuration cache issues
+
+**Solutions:**
+```bash
+# 1. Verify .env file
+cat .env | grep APP_ENV
+cat .env | grep APP_DEBUG
+
+# 2. Clear configuration cache
+docker-compose exec laravel.test php artisan config:clear
+docker-compose exec laravel.test php artisan config:cache
+
+# 3. Check cached configuration
+docker-compose exec laravel.test php artisan config:show app
+
+# 4. Regenerate application key
+docker-compose exec laravel.test php artisan key:generate
+```
+
+**Prevention:** Use `php artisan config:cache` in production but `php artisan config:clear` during development.
+
+### Getting Help
+
+If you encounter an issue not covered here:
+
+1. **Check the logs:**
+   ```bash
+   docker-compose exec laravel.test tail -f storage/logs/laravel.log
+   docker-compose logs laravel.test
+   ```
+
+2. **Verify your environment:**
+   ```bash
+   docker-compose exec laravel.test php artisan about
+   docker-compose exec laravel.test composer show
+   ```
+
+3. **Test API endpoints:**
+   ```bash
+   # Get API documentation
+   curl http://localhost/api/documentation
+   ```
+
+4. **Common debugging commands:**
+   ```bash
+   # Full system reset
+   docker-compose down -v
+   docker-compose up -d
+   docker-compose exec laravel.test composer install
+   docker-compose exec laravel.test php artisan migrate:fresh --seed
+   docker-compose exec laravel.test npm install && npm run dev
+   ```
+
+**Remember:** Most issues can be resolved by clearing caches and restarting services. Always check logs first when debugging!
 
 ---
 

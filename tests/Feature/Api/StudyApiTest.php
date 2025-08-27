@@ -12,7 +12,7 @@ test('a user can start a study session for their own deck', function () {
     $deck = Deck::factory()->for($user)->create();
 
     actingAs($user)
-        ->post('/api/studies', ['deck_id' => $deck->id])
+        ->post('/api/v1/studies', ['deck_id' => $deck->id])
         ->assertStatus(201)
         ->assertJsonStructure(['study_id']);
 });
@@ -28,7 +28,7 @@ test('a user can fetch shuffled cards for their own deck', function () {
     ]);
 
     actingAs($user)
-        ->getJson("/api/decks/{$deck->id}/cards")
+        ->getJson("/api/v1/decks/{$deck->id}/cards")
         ->assertStatus(200)
         ->assertJsonCount(5, 'data');
 });

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Study;
@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests; 
 use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
-use App\Http\Requests\Api\StoreStudyResultRequest;
+use App\Http\Requests\Api\V1\StoreStudyResultRequest;
 
 class StudyController extends Controller
 {

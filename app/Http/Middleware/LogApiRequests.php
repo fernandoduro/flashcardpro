@@ -53,7 +53,7 @@ class LogApiRequests
      */
     protected function ensureIsNotRateLimited(Request $request): void
     {
-        $key = sha1($request->ip());
+        $key = $request->user() ? $request->user()->id : $request->ip();
         $maxAttempts = 60; // 60 requests...
         $decayMinutes = 1; // ...per minute
 

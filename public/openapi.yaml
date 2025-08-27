@@ -309,10 +309,10 @@ components:
       properties:
         first:
           type: string
-          example: "http://localhost/api/decks?page=1"
+          example: "http://localhost/api/v1/decks?page=1"
         last:
           type: string
-          example: "http://localhost/api/decks?page=5"
+          example: "http://localhost/api/v1/decks?page=5"
         prev:
           type: string
           nullable: true
@@ -320,7 +320,7 @@ components:
         next:
           type: string
           nullable: true
-          example: "http://localhost/api/decks?page=2"
+          example: "http://localhost/api/v1/decks?page=2"
 
     PaginationMeta:
       type: object
@@ -336,7 +336,7 @@ components:
           example: 5
         path:
           type: string
-          example: "http://localhost/api/decks"
+          example: "http://localhost/api/v1/decks"
         per_page:
           type: integer
           example: 15

@@ -17,7 +17,7 @@ class Index extends Component
     /**
      * Get the total number of completed study sessions for the user.
      */
-    #[Computed]
+    #[Computed(cache: true, seconds: 60)]
     public function totalCompletedStudies(): int
     {
         return Study::where('user_id', auth()->id())
@@ -29,7 +29,7 @@ class Index extends Component
      * Get aggregate statistics about all answers.
      * This combines three queries into one for efficiency.
      */
-    #[Computed]
+    #[Computed(cache: true, seconds: 60)]
     public function answerStats(): object
     {
         return StudyResult::query()
@@ -44,7 +44,7 @@ class Index extends Component
     /**
      * Find the card that the user has answered incorrectly most often.
      */
-    #[Computed]
+    #[Computed(cache: true, seconds: 60)]
     public function mostWrongedCard(): ?object
     {
         return StudyResult::query()
@@ -61,7 +61,7 @@ class Index extends Component
     /**
      * Get the top 5 most studied decks.
      */
-    #[Computed]
+    #[Computed(cache: true, seconds: 60)]
     public function deckStudyRanking(): Collection
     {
         return Study::query()
@@ -78,7 +78,7 @@ class Index extends Component
     /**
      * Prepare data for the studies per day line chart.
      */
-    #[Computed]
+    #[Computed(cache: true, seconds: 60)]
     public function studiesPerDayChartData(): array
     {
         $studyCounts = Study::query()

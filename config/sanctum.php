@@ -47,7 +47,7 @@ return [
     |
     */
 
-    'expiration' => null,
+    'expiration' => now()->addDays(7)->diffInMinutes(), // Tokens expire after 7 days
 
     /*
     |--------------------------------------------------------------------------
