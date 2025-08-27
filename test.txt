@@ -1,0 +1,184 @@
+
+   PASS  Tests\Unit\ExampleTest
+  ✓ that true is true                                                    5.27s  
+
+   PASS  Tests\Unit\Policies\StudyPolicyTest
+  ✓ user can view their own study                                        0.46s  
+  ✓ user cannot view other users study                                   0.13s  
+  ✓ user can create study for their own deck                             0.12s  
+  ✓ user cannot create study for other users deck                        0.13s  
+  ✓ user can update their own study                                      0.13s  
+  ✓ user cannot update other users study                                 0.13s  
+  ✓ user can delete their own study                                      0.12s  
+  ✓ user cannot delete other users study                                 0.13s  
+
+   PASS  Tests\Unit\Resources\DeckResourceTest
+  ✓ deck resource returns correct structure                              0.32s  
+  ✓ deck resource returns cover image url when path exists               0.12s  
+  ✓ deck resource returns cover image url when path is null              0.14s  
+  ✓ deck resource returns cards count when counted                       0.18s  
+  ✓ deck resource returns cards collection when loaded                   0.15s  
+  ✓ deck resource returns iso8601 timestamps                             0.13s  
+  ✓ deck resource handles private deck                                   0.12s  
+  ✓ deck resource handles pinned deck                                    0.13s  
+
+   PASS  Tests\Unit\V1\LoginRequestTest
+  ✓ login request authorization always returns true                      0.15s  
+  ✓ login request has correct validation rules                           0.13s  
+  ✓ login request validation passes with valid data                      0.13s  
+  ✓ login request validation fails with missing email                    0.13s  
+  ✓ login request validation fails with invalid email                    0.13s  
+  ✓ login request validation fails with missing password                 0.13s  
+
+   PASS  Tests\Unit\V1\StoreCardRequestTest
+  ✓ it has the correct validation rules                                  0.13s  
+  ✓ it passes validation with valid data                                 0.27s  
+  ✓ it fails validation with invalid data with dataset "short question"  0.19s  
+  ✓ it fails validation with invalid data with dataset "missing questio… 0.18s  
+  ✓ it fails validation with invalid data with dataset "empty answer"    0.14s  
+  ✓ it fails validation with invalid data with dataset "missing answer"  0.14s  
+  ✓ it authorizes a user to create a card for their own deck             0.18s  
+  ✓ it prevents a user from creating a card for another user's deck      0.13s  
+
+   PASS  Tests\Unit\V1\StoreStudyResultRequestTest
+  ✓ store study result request has correct validation rules              0.17s  
+  ✓ store study result request authorization with own study              0.13s  
+  ✓ store study result request authorization with other users study      0.13s  
+  ✓ store study result request authorization with nonexistent study      0.13s  
+  ✓ store study result request validation passes with valid data         0.14s  
+  ✓ store study result request validation fails with missing study id    0.14s  
+  ✓ store study result request validation fails with missing card id     0.13s  
+  ✓ store study result request validation fails with missing is correct  0.13s  
+  ✓ store study result request validation fails with invalid is correct  0.13s  
+
+   PASS  Tests\Feature\AiCardGenerationTest
+  ✓ AI generator can be instantiated                                     0.13s  
+  ✓ AI generator has required methods                                    0.13s  
+  ✓ AI generator handles method reflection and signature                 0.12s  
+  ✓ AI generator can handle different engine configurations              0.17s  
+  ✓ AI generator has correct method signature                            0.40s  
+  ✓ AI generator supports different engine configurations                0.12s  
+  ✓ AI generator has proper error handling structure                     0.16s  
+
+   PASS  Tests\Feature\Api\AuthApiTest
+  ✓ user can login via api                                               0.57s  
+  ✓ user cannot login with invalid credentials                           0.18s  
+  ✓ user cannot login with a nonexistent email                           0.13s  
+  ✓ login requires an email and password                                 0.15s  
+  ✓ user can logout via api                                              0.17s  
+  ✓ logout requires authentication                                       0.17s  
+  ✓ login response includes api version and timestamp                    0.13s  
+
+   PASS  Tests\Feature\Api\DeckApiTest
+  ✓ user can retrieve their own decks                                    0.39s  
+  ✓ user cannot retrieve other users decks                               0.13s  
+  ✓ user can retrieve cards from their own deck                          0.14s  
+  ✓ user cannot retrieve cards from other users deck                     0.15s  
+  ✓ user can create card in their own deck                               0.14s  
+  ✓ user cannot create card in other users deck                          0.14s  
+  ✓ card creation requires question and answer                           0.14s  
+  ✓ authentication → decks api requires authentication                   0.13s  
+  ✓ authentication → deck cards api requires authentication              0.13s  
+  ✓ authentication → create card api requires authentication             0.14s  
+
+   PASS  Tests\Feature\Api\StudyApiTest
+  ✓ a user can start a study session for their own deck                  0.18s  
+  ✓ a user can fetch shuffled cards for their own deck                   0.14s  
+
+   PASS  Tests\Feature\Auth\AuthenticationTest
+  ✓ login screen can be rendered                                         2.12s  
+  ✓ users can authenticate using the login screen                        0.49s  
+  ✓ users can not authenticate with invalid password                     0.44s  
+  ✓ navigation menu can be rendered                                      0.43s  
+
+   PASS  Tests\Feature\Auth\EmailVerificationTest
+  ✓ email verification screen can be rendered                            0.19s  
+  ✓ email can be verified                                                0.21s  
+  ✓ email is not verified with invalid hash                              0.18s  
+
+   PASS  Tests\Feature\Auth\LogoutTest
+  ✓ an authenticated user can log out                                    0.20s  
+
+   PASS  Tests\Feature\Auth\PasswordConfirmationTest
+  ✓ confirm password screen can be rendered                              0.21s  
+  ✓ password can be confirmed                                            0.20s  
+  ✓ password is not confirmed with invalid password                      0.42s  
+
+   PASS  Tests\Feature\Auth\PasswordResetTest
+  ✓ reset password link screen can be rendered                           0.23s  
+  ✓ reset password link can be requested                                 0.55s  
+  ✓ reset password screen can be rendered                                0.54s  
+  ✓ password can be reset with valid token                               0.59s  
+
+   PASS  Tests\Feature\Auth\PasswordUpdateTest
+  ✓ password can be updated                                              0.34s  
+  ✓ correct password must be provided to update password                 0.32s  
+
+   PASS  Tests\Feature\Auth\RegistrationTest
+  ✓ registration screen can be rendered                                  0.18s  
+  ✓ new users can register                                               0.23s  
+
+   PASS  Tests\Feature\DeckManagementTest
+  ✓ an authenticated user can view their own decks                       0.32s  
+  ✓ a user cannot view another user's decks page                         0.30s  
+  ✓ a user cannot view a specific deck of another user                   0.16s  
+
+   PASS  Tests\Feature\ExampleTest
+  ✓ it returns a successful response                                     0.14s  
+
+   PASS  Tests\Feature\Integration\UserWorkflowTest
+  ✓ complete user workflow from registration to study completion         0.17s  
+  ✓ user cannot access other users data                                  0.13s  
+  ✓ study session expiration works correctly                             0.14s  
+  ✓ concurrent study sessions are handled properly                       0.14s  
+  ✓ deck statistics are calculated correctly                             0.15s  
+
+   PASS  Tests\Feature\Livewire\Cards\FormTest
+  ✓ can create a new card                                                0.19s  
+  ✓ can edit an existing card                                            0.17s  
+  ✓ validation fails for empty fields                                    0.20s  
+  ✓ a user cannot edit a card they do not own                            0.19s  
+
+   PASS  Tests\Feature\Livewire\Decks\FormTest
+  ✓ can create a new deck with a cover image                             0.45s  
+  ✓ can edit a deck and replace its cover image                          0.38s  
+  ✓ validation fails if deck name is not unique for the user             0.28s  
+
+   PASS  Tests\Feature\Livewire\Decks\IndexTest
+  ✓ the component renders successfully and displays decks                0.24s  
+  ✓ does not display decks owned by other users                          0.19s  
+  ✓ can pin a deck                                                       0.22s  
+  ✓ pinned decks appear first                                            0.24s  
+  ✓ can delete a deck                                                    0.22s  
+  ✓ a user cannot delete a deck they do not own                          0.23s  
+
+   PASS  Tests\Feature\Livewire\Decks\ShowTest
+  ✓ the deck show page can be rendered                                   0.32s  
+  ✓ a user cannot view a deck they do not own                            0.16s  
+  ✓ can remove a card from a deck                                        0.19s  
+
+   PASS  Tests\Feature\Livewire\Statistics\IndexTest
+  ✓ component renders successfully                                       0.22s  
+  ✓ calculates total completed studies correctly                         0.17s  
+  ✓ calculates answer statistics correctly                               0.18s  
+  ✓ finds the most wronged card                                          0.17s  
+
+   PASS  Tests\Feature\Performance\ApiPerformanceTest
+  ✓ API can handle multiple concurrent deck requests                     0.22s  
+  ✓ large deck with many cards loads efficiently                         0.16s  
+  ✓ study session creation is performant under load                      0.21s  
+  ✓ concurrent card updates dont cause race conditions                   0.15s  
+  ✓ database query optimization prevents N+1 problems                    0.15s  
+  ✓ pagination works efficiently with large datasets                     0.19s  
+  ✓ memory usage stays reasonable with large card sets                   0.19s  
+
+   PASS  Tests\Feature\ProfileTest
+  ✓ profile page is displayed                                            0.44s  
+  ✓ profile information can be updated                                   0.27s  
+  ✓ email verification status is unchanged when the email address is un… 0.27s  
+  ✓ user can delete their account                                        0.23s  
+  ✓ correct password must be provided to delete account                  0.25s  
+
+  Tests:    126 passed (362 assertions)
+  Duration: 35.71s
+

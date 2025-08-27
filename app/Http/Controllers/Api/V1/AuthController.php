@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Requests\Api\V1\LoginRequest;
+use App\Http\Resources\ApiResponse;
 
 class AuthController
 {
@@ -24,13 +25,13 @@ class AuthController
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return response()->json(['token' => $token]);
+        return ApiResponse::success(['token' => $token], 'Login successful');
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
-        return response()->json(null, 204);
+        return ApiResponse::noContent('Logout successful');
     }
 }

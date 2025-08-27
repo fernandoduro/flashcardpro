@@ -11,23 +11,30 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Http\Requests\Api\V1\StoreCardRequest;
+use App\Http\Resources\ApiResponse;
 
 class DeckController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index(Request $request): AnonymousResourceCollection
+    public function index(Request $request): \Illuminate\Http\JsonResponse
     {
+        $validated = $request->validate([
+            'per_page' => 'integer|min:1|max:100'
+        ]);
+
+        $perPage = $validated['per_page'] ?? 10;
+    
         $decks = $request->user()
             ->decks()
             ->withCount('cards')
             ->latest()
-            ->paginate(15);
+            ->paginate($perPage);
 
-        return DeckResource::collection($decks);
+        return ApiResponse::paginated($decks, 'Decks retrieved successfully');
     }
 
-    public function cards(Request $request, Deck $deck): AnonymousResourceCollection
+    public function cards(Request $request, Deck $deck): \Illuminate\Http\JsonResponse
     {
         $this->authorize('view', $deck);
 
@@ -37,10 +44,13 @@ class DeckController extends Controller
             ->inRandomOrder()
             ->get();
 
-        return CardResource::collection($cards);
+        return ApiResponse::success(
+            CardResource::collection($cards),
+            'Cards retrieved successfully'
+        );
     }
 
-    public function storeCard(StoreCardRequest $request, Deck $deck): CardResource
+    public function storeCard(StoreCardRequest $request, Deck $deck): \Illuminate\Http\JsonResponse
     {
         // Authorize that the user can add cards to this deck
         $this->authorize('update', $deck);
@@ -49,6 +59,10 @@ class DeckController extends Controller
             'user_id' => $request->user()->id,
         ]);
 
-        return new CardResource($card);
+        return ApiResponse::success(
+            new CardResource($card),
+            'Card created successfully',
+            201
+        );
     }
 }

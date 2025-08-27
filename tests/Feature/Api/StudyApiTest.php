@@ -7,6 +7,15 @@ use App\Models\Deck;
 use App\Models\User;
 use function Pest\Laravel\{actingAs, post, getJson};
 
+/**
+ * StudyApiTest - Tests for study session API endpoints
+ *
+ * This test suite covers:
+ * - Study session creation
+ * - Card retrieval for study sessions
+ * - Response format validation
+ * - Authorization checks
+ */
 test('a user can start a study session for their own deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->for($user)->create();
@@ -14,7 +23,13 @@ test('a user can start a study session for their own deck', function () {
     actingAs($user)
         ->post('/api/v1/studies', ['deck_id' => $deck->id])
         ->assertStatus(201)
-        ->assertJsonStructure(['study_id']);
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => ['study_id'],
+            'api_version',
+            'timestamp'
+        ]);
 });
 
 test('a user can fetch shuffled cards for their own deck', function () {
@@ -30,5 +45,12 @@ test('a user can fetch shuffled cards for their own deck', function () {
     actingAs($user)
         ->getJson("/api/v1/decks/{$deck->id}/cards")
         ->assertStatus(200)
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data',
+            'api_version',
+            'timestamp'
+        ])
         ->assertJsonCount(5, 'data');
 });

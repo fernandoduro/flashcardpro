@@ -16,7 +16,7 @@ class LogoutController extends Controller
     {
         // 2. Call the injected Logout action
         $logout();
-
+        
         // 3. The controller is responsible for the redirect
         return redirect()->route('welcome');
     }
