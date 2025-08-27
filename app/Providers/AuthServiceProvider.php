@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Providers;
 
 use App\Models\Card;
@@ -12,7 +13,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        Deck::class => DeckPolicy::class,        
+        Deck::class => DeckPolicy::class,
         Study::class => StudyPolicy::class,
         Card::class => CardPolicy::class,
     ];

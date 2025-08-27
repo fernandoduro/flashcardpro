@@ -12,11 +12,11 @@ test('deck resource returns correct structure', function () {
         'name' => 'Test Deck',
         'public' => true,
         'is_pinned' => false,
-        'cover_image_path' => 'covers/test.jpg'
+        'cover_image_path' => 'covers/test.jpg',
     ]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -35,11 +35,11 @@ test('deck resource returns cover image url when path exists', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->create([
         'user_id' => $user->id,
-        'cover_image_path' => 'covers/test.jpg'
+        'cover_image_path' => 'covers/test.jpg',
     ]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -51,11 +51,11 @@ test('deck resource returns cover image url when path is null', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->create([
         'user_id' => $user->id,
-        'cover_image_path' => null
+        'cover_image_path' => null,
     ]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -71,7 +71,7 @@ test('deck resource returns cards count when counted', function () {
     $deckWithCount = Deck::withCount('cards')->find($deck->id);
 
     $resource = new DeckResource($deckWithCount);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -86,7 +86,7 @@ test('deck resource returns cards collection when loaded', function () {
     $deckWithCards = Deck::with('cards')->find($deck->id);
 
     $resource = new DeckResource($deckWithCards);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -101,7 +101,7 @@ test('deck resource returns iso8601 timestamps', function () {
     $deck = Deck::factory()->create(['user_id' => $user->id]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -113,11 +113,11 @@ test('deck resource handles private deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->create([
         'user_id' => $user->id,
-        'public' => false
+        'public' => false,
     ]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 
@@ -128,11 +128,11 @@ test('deck resource handles pinned deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->create([
         'user_id' => $user->id,
-        'is_pinned' => true
+        'is_pinned' => true,
     ]);
 
     $resource = new DeckResource($deck);
-    $request = new Request();
+    $request = new Request;
 
     $result = $resource->toArray($request);
 

@@ -1,9 +1,6 @@
 <?php
 
 use App\CardGenerator\AiCardGenerator;
-use App\Models\Deck;
-use App\Models\User;
-use Illuminate\Support\Facades\Log;
 
 /**
  * AiCardGenerationTest - Tests for AI-powered card generation functionality
@@ -26,12 +23,12 @@ beforeEach(function () {
 });
 
 test('AI generator can be instantiated', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
     expect($generator)->toBeInstanceOf(AiCardGenerator::class);
 });
 
 test('AI generator has required methods', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
 
     // Test that the class has the required public methods
     expect(method_exists($generator, 'generate'))->toBeTrue();
@@ -39,7 +36,7 @@ test('AI generator has required methods', function () {
 });
 
 test('AI generator handles method reflection and signature', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
 
     // Test that the class exists and can handle errors gracefully
     expect($generator)->toBeInstanceOf(AiCardGenerator::class);
@@ -55,11 +52,11 @@ test('AI generator handles method reflection and signature', function () {
 });
 
 test('AI generator can handle different engine configurations', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
 
     // Test that the generator can be instantiated with different configurations
     config(['app.ai_main_engine' => 'openai']);
-    $generator2 = new AiCardGenerator();
+    $generator2 = new AiCardGenerator;
     expect($generator2)->toBeInstanceOf(AiCardGenerator::class);
 
     // Reset to original config
@@ -67,7 +64,7 @@ test('AI generator can handle different engine configurations', function () {
 });
 
 test('AI generator has correct method signature', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
 
     // Test method signature and return type using reflection
     $reflection = new \ReflectionClass($generator);
@@ -83,16 +80,16 @@ test('AI generator has correct method signature', function () {
 test('AI generator supports different engine configurations', function () {
     // Test different AI engine configurations
     config(['app.ai_main_engine' => 'gemini']);
-    $generator1 = new AiCardGenerator();
+    $generator1 = new AiCardGenerator;
     expect($generator1)->toBeInstanceOf(AiCardGenerator::class);
 
     config(['app.ai_main_engine' => 'openai']);
-    $generator2 = new AiCardGenerator();
+    $generator2 = new AiCardGenerator;
     expect($generator2)->toBeInstanceOf(AiCardGenerator::class);
 });
 
 test('AI generator has proper error handling structure', function () {
-    $generator = new AiCardGenerator();
+    $generator = new AiCardGenerator;
 
     // Test that the class has proper error handling by checking if it uses logging
     $reflection = new \ReflectionClass($generator);

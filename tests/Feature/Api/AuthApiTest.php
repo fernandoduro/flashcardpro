@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
 
 test('user can login via api', function () {
@@ -19,19 +18,19 @@ test('user can login via api', function () {
 
     // Assert: Check the response
     $response->assertStatus(200)
-             ->assertJsonStructure([
-                 'success',
-                 'message',
-                 'data' => [
-                     'token',
-                 ],
-                 'api_version',
-                 'timestamp',
-             ])
-             ->assertJson([
-                 'success' => true,
-                 'message' => 'Login successful',
-             ]);
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data' => [
+                'token',
+            ],
+            'api_version',
+            'timestamp',
+        ])
+        ->assertJson([
+            'success' => true,
+            'message' => 'Login successful',
+        ]);
 });
 
 test('user cannot login with invalid credentials', function () {
@@ -46,7 +45,7 @@ test('user cannot login with invalid credentials', function () {
 
     // Assert: Check for validation errors
     $response->assertStatus(422)
-             ->assertJsonValidationErrors(['email']);
+        ->assertJsonValidationErrors(['email']);
 });
 
 test('user cannot login with a nonexistent email', function () {
@@ -58,7 +57,7 @@ test('user cannot login with a nonexistent email', function () {
 
     // Assert: Check for validation errors
     $response->assertStatus(422)
-             ->assertJsonValidationErrors(['email']);
+        ->assertJsonValidationErrors(['email']);
 });
 
 test('login requires an email and password', function () {
@@ -67,7 +66,7 @@ test('login requires an email and password', function () {
 
     // Assert: Check for validation errors
     $response->assertStatus(422)
-             ->assertJsonValidationErrors(['email', 'password']);
+        ->assertJsonValidationErrors(['email', 'password']);
 });
 
 test('user can logout via api', function () {
@@ -86,7 +85,7 @@ test('user can logout via api', function () {
 
     // Act: Make the logout request with the authentication token
     $response = $this->withHeaders([
-        'Authorization' => 'Bearer ' . $token,
+        'Authorization' => 'Bearer '.$token,
     ])->postJson('/api/v1/logout');
 
     // Assert: The logout was successful and the token was deleted

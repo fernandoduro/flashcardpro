@@ -31,12 +31,9 @@ class LogApiRequests
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // 1. Apply Rate Limiting
         $this->ensureIsNotRateLimited($request);
 
         $startTime = microtime(true);
-
-        // 2. Log the Request with enhanced context
         Log::info('API Request Started:', [
             'url' => $request->fullUrl(),
             'method' => $request->method(),
@@ -53,13 +50,10 @@ class LogApiRequests
             'timestamp' => now()->toISOString(),
         ]);
 
-        // 3. Pass the request to the next middleware and capture response
         $response = $next($request);
 
         $endTime = microtime(true);
         $duration = round(($endTime - $startTime) * 1000, 2); // Convert to milliseconds
-
-        // 4. Log the response
         Log::info('API Request Completed:', [
             'url' => $request->fullUrl(),
             'method' => $request->method(),

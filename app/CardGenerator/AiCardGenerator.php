@@ -2,26 +2,24 @@
 
 namespace App\CardGenerator;
 
-use Gemini\Laravel\Facades\Gemini;
-use OpenAI\Laravel\Facades\OpenAI;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
-
 use Gemini\Data\GenerationConfig;
 use Gemini\Data\Schema;
 use Gemini\Enums\DataType;
 use Gemini\Enums\ResponseMimeType;
+use Gemini\Laravel\Facades\Gemini;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
+use OpenAI\Laravel\Facades\OpenAI;
 
 class AiCardGenerator
 {
     /**
      * Generates a specified number of flashcards for a given theme.
      *
-     * @param  string  $theme The theme for the flashcards.
-     * @param  int  $count The number of cards to generate.
+     * @param  string  $theme  The theme for the flashcards.
+     * @param  int  $count  The number of cards to generate.
      * @return array|null An array of generated cards or null on failure.
      */
-
     public $ai_main_engine;
 
     public function __construct()
@@ -32,13 +30,14 @@ class AiCardGenerator
     public function generate(string $theme, int $count = 10): ?array
     {
         // Simple rate limiting using cache
-        $cacheKey = "ai-request-" . md5($theme . $count);
-        $rateLimitKey = "ai-rate-limit";
+        $cacheKey = 'ai-request-'.md5($theme.$count);
+        $rateLimitKey = 'ai-rate-limit';
 
         // Check rate limit (max 10 requests per minute)
         $requestCount = Cache::get($rateLimitKey, 0);
         if ($requestCount >= 10) {
             Log::warning('AI Card Generation: Rate limit exceeded');
+
             return null;
         }
 
@@ -88,11 +87,11 @@ class AiCardGenerator
                                             type: DataType::OBJECT,
                                             properties: [
                                                 'question' => new Schema(type: DataType::STRING),
-                                                'answer' => new Schema(type: DataType::STRING)
+                                                'answer' => new Schema(type: DataType::STRING),
                                             ],
                                             required: ['question', 'answer']
                                         )
-                                    )
+                                    ),
                                 ]
                             )
                         );
@@ -113,45 +112,68 @@ class AiCardGenerator
                 if (json_last_error() !== JSON_ERROR_NONE) {
                     Log::error('AI Card Generation: Invalid JSON response from AI service.', [
                         'error' => json_last_error_msg(),
-                        'response' => $jsonContent
+                        'response' => $jsonContent,
                     ]);
+
                     return null;
                 }
 
-                // Handle different response structures
-                if (!empty($decodedResponse['question'])) {
-                    // If the response is a single object instead of an array
-                    $generatedCards = [$decodedResponse];
-                } elseif (isset($decodedResponse['cards']) && is_array($decodedResponse['cards'])) {
-                    // If response has a 'cards' wrapper
-                    $generatedCards = $decodedResponse['cards'];
-                } elseif (is_array($decodedResponse) && !empty($decodedResponse)) {
-                    // If response is directly an array
-                    $firstKey = array_key_first($decodedResponse);
-                    $generatedCards = is_array($decodedResponse[$firstKey])
-                        ? $decodedResponse[$firstKey]
-                        : $decodedResponse;
-                } else {
-                    Log::error('AI Card Generation: Unexpected response structure.', ['response' => $decodedResponse]);
+                // Handle different response structures more robustly
+                $generatedCards = null;
+
+                if (is_array($decodedResponse)) {
+                    // Check for single card object first
+                    if (! empty($decodedResponse['question']) && ! empty($decodedResponse['answer'])) {
+                        $generatedCards = [$decodedResponse];
+                    }
+                    // Check for cards wrapper
+                    elseif (isset($decodedResponse['cards']) && is_array($decodedResponse['cards'])) {
+                        $generatedCards = $decodedResponse['cards'];
+                    }
+                    // Check if the response is directly an array of cards
+                    elseif (count($decodedResponse) > 0 && isset($decodedResponse[0]['question'])) {
+                        $generatedCards = $decodedResponse;
+                    }
+                    // Handle nested array structure
+                    elseif (count($decodedResponse) === 1) {
+                        $firstValue = reset($decodedResponse);
+                        if (is_array($firstValue)) {
+                            if (isset($firstValue['question'])) {
+                                $generatedCards = [$firstValue];
+                            } elseif (isset($firstValue[0]['question'])) {
+                                $generatedCards = $firstValue;
+                            }
+                        }
+                    }
+                }
+
+                if ($generatedCards === null || ! is_array($generatedCards)) {
+                    Log::error('AI Card Generation: Unable to parse response structure.', [
+                        'response_type' => gettype($decodedResponse),
+                        'response_keys' => is_array($decodedResponse) ? array_keys($decodedResponse) : null,
+                        'response' => $decodedResponse,
+                    ]);
+
                     return null;
                 }
 
                 // Validate and sanitize each card
                 $validatedCards = [];
                 foreach ($generatedCards as $cardData) {
-                    if (!is_array($cardData) ||
-                        !isset($cardData['question']) ||
-                        !isset($cardData['answer']) ||
-                        !is_string($cardData['question']) ||
-                        !is_string($cardData['answer'])) {
+                    if (! is_array($cardData) ||
+                        ! isset($cardData['question']) ||
+                        ! isset($cardData['answer']) ||
+                        ! is_string($cardData['question']) ||
+                        ! is_string($cardData['answer'])) {
                         Log::warning('AI Card Generation: Invalid card structure, skipping.', ['card' => $cardData]);
+
                         continue;
                     }
 
                     // Sanitize content
                     $validatedCards[] = [
                         'question' => trim(strip_tags($cardData['question'])),
-                        'answer' => trim(strip_tags($cardData['answer']))
+                        'answer' => trim(strip_tags($cardData['answer'])),
                     ];
                 }
 
@@ -159,6 +181,7 @@ class AiCardGenerator
 
                 if (empty($validatedCards)) {
                     Log::error('AI Card Generation: No valid cards after validation.', ['response' => $jsonContent]);
+
                     return null;
                 }
 
@@ -166,14 +189,16 @@ class AiCardGenerator
 
             } catch (\Exception $e) {
                 Log::error('AI Card Generation: Failed to get a response from the AI.', ['error' => $e->getMessage()]);
+
                 return null;
             }
         } catch (\Exception $e) {
             Log::error('AI Card Generation: Unexpected error during generation process.', [
                 'error' => $e->getMessage(),
                 'theme' => $theme,
-                'count' => $count
+                'count' => $count,
             ]);
+
             return null;
         }
     }

@@ -11,11 +11,17 @@ class StudyResult extends Model
 
     protected $fillable = ['study_id', 'card_id', 'is_correct'];
 
+    /**
+     * Get the study that owns the study result.
+     */
     public function study()
     {
         return $this->belongsTo(Study::class);
     }
 
+    /**
+     * Get the card that owns the study result.
+     */
     public function card()
     {
         return $this->belongsTo(Card::class);

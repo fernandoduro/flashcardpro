@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Policies;
+
 use App\Models\Deck;
 use App\Models\User;
 
 class DeckPolicy
 {
-     /**
+    /**
      * Determine whether the user can view the deck.
      *
      * A user can view a deck if they own it.

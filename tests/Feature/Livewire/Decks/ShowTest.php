@@ -7,7 +7,6 @@ use App\Models\User;
 use Livewire\Livewire;
 
 use function Pest\Laravel\actingAs;
-use function Pest\Laravel\get;
 
 test('the deck show page can be rendered', function () {
     $user = User::factory()->create();

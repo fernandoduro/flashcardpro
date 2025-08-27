@@ -12,9 +12,11 @@ class Form extends Component
     use AuthorizesRequests;
 
     public ?Card $editingCard = null;
+
     public ?Deck $deck = null;
 
     public string $question = '';
+
     public string $answer = '';
 
     protected $listeners = [
@@ -22,6 +24,9 @@ class Form extends Component
         'openEditCardModal' => 'openForEdit',
     ];
 
+    /**
+     * Get the validation rules for the card form.
+     */
     public function rules(): array
     {
         return [
@@ -67,7 +72,7 @@ class Form extends Component
     {
         $this->validate();
 
-        if ($this->editingCard) {   
+        if ($this->editingCard) {
             $this->authorize('update', $this->editingCard);
             $this->editingCard->update([
                 'question' => $this->question,
@@ -80,7 +85,7 @@ class Form extends Component
             $this->deck->cards()->create([
                 'question' => $this->question,
                 'answer' => $this->answer,
-                'user_id' => auth()->id()
+                'user_id' => auth()->id(),
             ]);
 
             $this->dispatch('cardCreated');
@@ -99,7 +104,10 @@ class Form extends Component
         $this->resetValidation();
     }
 
-    public function render()
+    /**
+     * Render the card form component.
+     */
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.cards.form');
     }

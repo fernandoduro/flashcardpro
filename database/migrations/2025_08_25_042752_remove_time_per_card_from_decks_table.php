@@ -26,7 +26,7 @@ return new class extends Migration
     {
         Schema::table('decks', function (Blueprint $table) {
             // Re-add the column if it doesn't exist, to make the migration reversible
-            if (!Schema::hasColumn('decks', 'time_per_card')) {
+            if (! Schema::hasColumn('decks', 'time_per_card')) {
                 $table->unsignedInteger('time_per_card')->nullable()->comment('in seconds')->after('name');
             }
         });

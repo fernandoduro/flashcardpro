@@ -3,26 +3,25 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ApiResponse;
 use App\Models\Study;
 use App\Models\StudyResult;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Validation\Rule;
 use Illuminate\Http\JsonResponse;
-
-use App\Http\Resources\ApiResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class StudyController extends Controller
 {
     use AuthorizesRequests;
 
+    /**
+     * Create a new study session for the authenticated user.
+     */
     public function store(Request $request): JsonResponse
     {
-        // Check if user is authenticated
-        if (!$request->user()) {
-            return ApiResponse::error('Authentication required', 401);
-        }
-
         $data = $request->validate([
             'deck_id' => ['required', Rule::exists('decks', 'id')->where('user_id', $request->user()->id)],
         ]);
@@ -38,21 +37,21 @@ class StudyController extends Controller
         );
     }
 
+    /**
+     * Mark a study session as completed.
+     */
     public function complete(Request $request, Study $study): JsonResponse
     {
         $this->authorize('update', $study);
 
-        // Validate that the study belongs to the authenticated user
         if ($study->user_id !== $request->user()->id) {
             return ApiResponse::error('Unauthorized access to study session', 403);
         }
 
-        // Check if study is already completed
         if ($study->completed_at !== null) {
             return ApiResponse::error('Study session is already completed', 422);
         }
 
-        // Validate that the study was created recently (within last 24 hours)
         if ($study->created_at->diffInHours(now()) > 24) {
             return ApiResponse::error('Study session has expired', 422);
         }
@@ -62,23 +61,19 @@ class StudyController extends Controller
         return ApiResponse::success(null, 'Study session completed successfully');
     }
 
+    /**
+     * Record a study result for a specific card.
+     */
     public function recordResult(Request $request): JsonResponse
     {
-        // Check if user is authenticated
-        if (!$request->user()) {
-            return ApiResponse::error('Authentication required', 401);
-        }
-
-        // Validate the request data
         $data = $request->validate([
             'study_id' => ['required', 'integer', 'exists:studies,id'],
             'card_id' => ['required', 'integer', 'exists:cards,id'],
             'is_correct' => ['required', 'boolean'],
         ]);
 
-        // Find the study and verify ownership
         $study = Study::find($data['study_id']);
-        if (!$study) {
+        if (! $study) {
             return ApiResponse::error('Study session not found', 404);
         }
 
@@ -86,9 +81,35 @@ class StudyController extends Controller
             return ApiResponse::error('Unauthorized access to study session', 403);
         }
 
-        // Create the study result
-        StudyResult::create($data);
+        try {
+            DB::beginTransaction();
 
-        return ApiResponse::success(null, 'Study result recorded successfully', 201);
+            $existingResult = StudyResult::where('study_id', $data['study_id'])
+                ->where('card_id', $data['card_id'])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingResult) {
+                DB::rollBack();
+
+                return ApiResponse::error('Study result already exists for this card', 422);
+            }
+
+            StudyResult::create($data);
+
+            DB::commit();
+
+            return ApiResponse::success(null, 'Study result recorded successfully', 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Failed to record study result', [
+                'error' => $e->getMessage(),
+                'study_id' => $data['study_id'],
+                'card_id' => $data['card_id'],
+                'user_id' => $request->user()->id,
+            ]);
+
+            return ApiResponse::error('Failed to record study result', 500);
+        }
     }
 }

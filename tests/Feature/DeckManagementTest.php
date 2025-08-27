@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
 use App\Models\Deck;
-use function Pest\Laravel\{actingAs, get};
+use App\Models\User;
 
+use function Pest\Laravel\actingAs;
 
 test('an authenticated user can view their own decks', function () {
     $user = User::factory()->create();
@@ -15,7 +15,7 @@ test('an authenticated user can view their own decks', function () {
         ->assertSee($deck->name);
 });
 
-test('a user cannot view another user\'s decks page', function() {
+test('a user cannot view another user\'s decks page', function () {
     $user1 = User::factory()->create();
     $deckForUser1 = Deck::factory()->for($user1)->create();
 

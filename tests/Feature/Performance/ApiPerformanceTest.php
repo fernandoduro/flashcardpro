@@ -1,8 +1,8 @@
 <?php
 
-use App\Models\User;
-use App\Models\Deck;
 use App\Models\Card;
+use App\Models\Deck;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
 test('API can handle multiple concurrent deck requests', function () {
@@ -15,7 +15,7 @@ test('API can handle multiple concurrent deck requests', function () {
         $cardCount = ($index + 1) * 5; // 5, 10, 15, ... 50 cards
         Card::factory()->count($cardCount)->create([
             'user_id' => $user->id,
-            'deck_id' => $deck->id
+            'deck_id' => $deck->id,
         ]);
     }
 
@@ -49,7 +49,7 @@ test('large deck with many cards loads efficiently', function () {
     // Create a large number of cards (100 cards)
     $cards = Card::factory()->count(100)->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
 
     $this->actingAs($user);
@@ -77,7 +77,7 @@ test('study session creation is performant under load', function () {
     foreach ($decks as $deck) {
         Card::factory()->count(10)->create([
             'user_id' => $user->id,
-            'deck_id' => $deck->id
+            'deck_id' => $deck->id,
         ]);
     }
 
@@ -117,7 +117,7 @@ test('concurrent card updates dont cause race conditions', function () {
         'user_id' => $user->id,
         'deck_id' => $deck->id,
         'question' => 'Original Question',
-        'answer' => 'Original Answer'
+        'answer' => 'Original Answer',
     ]);
 
     $this->actingAs($user);
@@ -128,7 +128,7 @@ test('concurrent card updates dont cause race conditions', function () {
     $newQuestions = [
         'Updated Question 1',
         'Updated Question 2',
-        'Updated Question 3'
+        'Updated Question 3',
     ];
 
     foreach ($newQuestions as $newQuestion) {
@@ -136,7 +136,7 @@ test('concurrent card updates dont cause race conditions', function () {
         // Here we simulate by doing them sequentially but checking for consistency
         $response = $this->postJson("/api/v1/decks/{$deck->id}/cards", [
             'question' => $newQuestion,
-            'answer' => 'Updated Answer'
+            'answer' => 'Updated Answer',
         ]);
 
         $response->assertStatus(201);
@@ -166,7 +166,7 @@ test('database query optimization prevents N+1 problems', function () {
     foreach ($decks as $deck) {
         Card::factory()->count(3)->create([
             'user_id' => $user->id,
-            'deck_id' => $deck->id
+            'deck_id' => $deck->id,
         ]);
     }
 
@@ -197,7 +197,7 @@ test('pagination works efficiently with large datasets', function () {
     foreach ($decks as $deck) {
         Card::factory()->count(2)->create([
             'user_id' => $user->id,
-            'deck_id' => $deck->id
+            'deck_id' => $deck->id,
         ]);
     }
 
@@ -234,7 +234,7 @@ test('memory usage stays reasonable with large card sets', function () {
     // Create a very large deck (200 cards)
     Card::factory()->count(200)->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
 
     $this->actingAs($user);

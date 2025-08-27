@@ -28,10 +28,10 @@ test('user can retrieve their own decks', function () {
             'pagination' => [
                 'current_page',
                 'total',
-                'per_page'
+                'per_page',
             ],
             'api_version',
-            'timestamp'
+            'timestamp',
         ])
         ->assertJsonCount(1, 'data');
 });
@@ -52,7 +52,7 @@ test('user can retrieve cards from their own deck', function () {
     $deck = Deck::factory()->create(['user_id' => $user->id]);
     Card::factory()->count(3)->create([
         'deck_id' => $deck->id,
-        'user_id' => $user->id
+        'user_id' => $user->id,
     ]);
 
     actingAs($user, 'sanctum')
@@ -63,7 +63,7 @@ test('user can retrieve cards from their own deck', function () {
             'message',
             'data',
             'api_version',
-            'timestamp'
+            'timestamp',
         ])
         ->assertJsonCount(3, 'data');
 });
@@ -84,7 +84,7 @@ test('user can create card in their own deck', function () {
 
     $cardData = [
         'question' => 'What is the capital of France?',
-        'answer' => 'Paris'
+        'answer' => 'Paris',
     ];
 
     actingAs($user, 'sanctum')
@@ -96,14 +96,14 @@ test('user can create card in their own deck', function () {
             'data' => [
                 'id',
                 'question',
-                'answer'
+                'answer',
             ],
             'api_version',
-            'timestamp'
+            'timestamp',
         ])
         ->assertJson([
             'success' => true,
-            'message' => 'Card created successfully'
+            'message' => 'Card created successfully',
         ]);
 
     // Database assertions work the same way.
@@ -111,7 +111,7 @@ test('user can create card in their own deck', function () {
         'deck_id' => $deck->id,
         'user_id' => $user->id,
         'question' => $cardData['question'],
-        'answer' => $cardData['answer']
+        'answer' => $cardData['answer'],
     ]);
 });
 
@@ -122,7 +122,7 @@ test('user cannot create card in other users deck', function () {
 
     $cardData = [
         'question' => 'What is the capital of France?',
-        'answer' => 'Paris'
+        'answer' => 'Paris',
     ];
 
     actingAs($user1, 'sanctum')
@@ -159,7 +159,7 @@ describe('authentication', function () {
 
         postJson("/api/v1/decks/{$deck->id}/cards", [
             'question' => 'Test question',
-            'answer' => 'Test answer'
+            'answer' => 'Test answer',
         ])->assertUnauthorized();
     });
 });

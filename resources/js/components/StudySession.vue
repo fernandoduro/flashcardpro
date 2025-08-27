@@ -103,15 +103,42 @@ const progressPercentage = computed(() => {
     return ((currentCardIndex.value + 1) / cards.value.length) * 100;
 });
 
+// Helper function to safely get API token
+const getApiToken = () => {
+    try {
+        if (typeof Storage === 'undefined') {
+            throw new Error('LocalStorage is not available in this environment');
+        }
+        const token = localStorage.getItem('api_token');
+        if (!token) {
+            throw new Error('API token not found in localStorage');
+        }
+        return token;
+    } catch (e) {
+        console.error('Error accessing API token:', e.message);
+        throw new Error('Unable to retrieve API token. Please log in again.');
+    }
+};
+
 // Create a dedicated API client that includes the auth token
 const apiClient = axios.create({
     baseURL: '/api/v1',
     headers: {
-        'Authorization': `Bearer ${localStorage.getItem('api_token')}`,
         'Accept': 'application/json',
     },
     timeout: 30000, // 30 second timeout
 });
+
+// Add request interceptor to dynamically set auth token
+apiClient.interceptors.request.use(
+    (config) => {
+        config.headers.Authorization = `Bearer ${getApiToken()}`;
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
 
 // Add response interceptor for better error handling
 apiClient.interceptors.response.use(
@@ -128,8 +155,10 @@ apiClient.interceptors.response.use(
 // Lifecycle Hook
 onMounted(async () => {
     // Pre-flight check for the API token
-    if (!localStorage.getItem('api_token')) {
-        error.value = "API token not found in local storage. Please log in or generate a token.";
+    try {
+        getApiToken(); // This will throw an error if token is not available
+    } catch (e) {
+        error.value = e.message;
         loading.value = false;
         return;
     }
@@ -142,8 +171,7 @@ onMounted(async () => {
             'starting study session'
         );
 
-        // Debug: Log the response to ensure study_id is present
-        console.log('Study session created:', sessionResponse.data);
+
 
         if (!sessionResponse.data || !sessionResponse.data.data || !sessionResponse.data.data.study_id) {
             console.error('Invalid response structure:', sessionResponse.data);
@@ -151,7 +179,7 @@ onMounted(async () => {
         }
 
         studyId.value = sessionResponse.data.data.study_id;
-        console.log('Study ID set to:', studyId.value);
+
 
         // Retry logic for fetching cards
         const cardsResponse = await retryApiCall(
@@ -160,8 +188,7 @@ onMounted(async () => {
             'fetching cards'
         );
 
-        // Debug: Log the cards response
-        console.log('Cards response:', cardsResponse.data);
+
 
         if (!cardsResponse.data || !cardsResponse.data.data) {
             console.error('Invalid cards response structure:', cardsResponse.data);
@@ -169,7 +196,7 @@ onMounted(async () => {
         }
 
         cards.value = cardsResponse.data.data;
-        console.log('Cards loaded:', cards.value.length, 'cards');
+
 
         if (cards.value.length === 0) {
             sessionFinished.value = true;

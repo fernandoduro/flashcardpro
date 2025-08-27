@@ -2,10 +2,10 @@
 
 namespace App\Providers;
 
+use App\Listeners\GenerateApiTokenForUser;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event; 
-use Illuminate\Auth\Events\Login;       
-use App\Listeners\GenerateApiTokenForUser; 
 
 class AppServiceProvider extends ServiceProvider
 {

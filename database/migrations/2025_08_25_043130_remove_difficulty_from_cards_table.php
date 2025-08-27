@@ -26,7 +26,7 @@ return new class extends Migration
     {
         Schema::table('cards', function (Blueprint $table) {
             // Re-add the column for rollback safety
-            if (!Schema::hasColumn('cards', 'difficulty')) {
+            if (! Schema::hasColumn('cards', 'difficulty')) {
                 $table->enum('difficulty', ['easy', 'medium', 'hard'])->default('medium')->after('answer');
             }
         });

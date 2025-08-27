@@ -16,7 +16,9 @@ class Form extends Component
     public ?Deck $editingDeck = null;
 
     public string $name = '';
+
     public bool $isPublic = false;
+
     public $coverImage = null;
 
     protected $listeners = [
@@ -31,7 +33,7 @@ class Form extends Component
                 'required', 'string', 'max:255',
                 $this->editingDeck
                     ? Rule::unique('decks')->where('user_id', auth()->id())->ignore($this->editingDeck->id)
-                    : Rule::unique('decks')->where('user_id', auth()->id())
+                    : Rule::unique('decks')->where('user_id', auth()->id()),
             ],
             'isPublic' => ['required', 'boolean'],
             'coverImage' => [
@@ -87,10 +89,8 @@ class Form extends Component
         }
 
         if ($this->coverImage) {
-            // If a new image is uploaded, store it and get the path.
             $dataToSave['cover_image_path'] = $this->coverImage->store('deck-covers', 'public');
 
-            // If we are editing and an old image existed, delete it.
             if ($this->editingDeck?->cover_image_path) {
                 Storage::disk('public')->delete($this->editingDeck->cover_image_path);
             }
@@ -119,7 +119,10 @@ class Form extends Component
         $this->resetValidation();
     }
 
-    public function render()
+    /**
+     * Render the deck form component.
+     */
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.decks.form');
     }

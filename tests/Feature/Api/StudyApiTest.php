@@ -5,7 +5,8 @@ namespace Tests\Feature\Api;
 use App\Models\Card;
 use App\Models\Deck;
 use App\Models\User;
-use function Pest\Laravel\{actingAs, post, getJson};
+
+use function Pest\Laravel\actingAs;
 
 /**
  * StudyApiTest - Tests for study session API endpoints
@@ -28,7 +29,7 @@ test('a user can start a study session for their own deck', function () {
             'message',
             'data' => ['study_id'],
             'api_version',
-            'timestamp'
+            'timestamp',
         ]);
 });
 
@@ -50,7 +51,7 @@ test('a user can fetch shuffled cards for their own deck', function () {
             'message',
             'data',
             'api_version',
-            'timestamp'
+            'timestamp',
         ])
         ->assertJsonCount(5, 'data');
 });

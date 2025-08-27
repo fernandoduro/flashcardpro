@@ -2,16 +2,19 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Http\Requests\Api\V1\LoginRequest;
+use App\Http\Resources\ApiResponse;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Http\Requests\Api\V1\LoginRequest;
-use App\Http\Resources\ApiResponse;
 
 class AuthController
 {
-    public function login(LoginRequest $request)
+    /**
+     * Authenticate user and return API token.
+     */
+    public function login(LoginRequest $request): \Illuminate\Http\JsonResponse
     {
         $user = User::where('email', $request->email)->first();
 
@@ -28,7 +31,10 @@ class AuthController
         return ApiResponse::success(['token' => $token], 'Login successful');
     }
 
-    public function logout(Request $request)
+    /**
+     * Logout user by revoking current API token.
+     */
+    public function logout(Request $request): \Illuminate\Http\Response
     {
         $request->user()->currentAccessToken()->delete();
 

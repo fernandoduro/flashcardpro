@@ -1,17 +1,17 @@
 <?php
 
-use App\Models\User;
-use App\Models\Deck;
 use App\Models\Card;
+use App\Models\Deck;
 use App\Models\Study;
 use App\Models\StudyResult;
+use App\Models\User;
 use Laravel\Sanctum\Sanctum;
 
 test('complete user workflow from registration to study completion', function () {
     // 1. User registration and login
     $user = User::factory()->create([
         'name' => 'Test User',
-        'email' => 'test@example.com'
+        'email' => 'test@example.com',
     ]);
 
     $this->actingAs($user);
@@ -20,7 +20,7 @@ test('complete user workflow from registration to study completion', function ()
     $deck = Deck::factory()->create([
         'user_id' => $user->id,
         'name' => 'Integration Test Deck',
-        'public' => false
+        'public' => false,
     ]);
 
     expect($deck->fresh())->not->toBeNull();
@@ -29,7 +29,7 @@ test('complete user workflow from registration to study completion', function ()
     // 3. Add cards to the deck
     $cards = Card::factory()->count(3)->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
 
     expect($cards)->toHaveCount(3);
@@ -39,7 +39,7 @@ test('complete user workflow from registration to study completion', function ()
     $study = Study::factory()->create([
         'user_id' => $user->id,
         'deck_id' => $deck->id,
-        'completed_at' => null
+        'completed_at' => null,
     ]);
 
     expect($study->fresh())->not->toBeNull();
@@ -56,7 +56,7 @@ test('complete user workflow from registration to study completion', function ()
         StudyResult::factory()->create([
             'study_id' => $study->id,
             'card_id' => $card->id,
-            'is_correct' => $isCorrect
+            'is_correct' => $isCorrect,
         ]);
     }
 
@@ -69,10 +69,10 @@ test('complete user workflow from registration to study completion', function ()
     expect($study->fresh()->completed_at)->not->toBeNull();
 
     // 7. Verify statistics are calculated correctly
-    $totalResults = StudyResult::whereHas('study', fn($q) => $q->where('user_id', $user->id))->count();
-    $correctResults = StudyResult::whereHas('study', fn($q) => $q->where('user_id', $user->id))
-                                 ->where('is_correct', true)
-                                 ->count();
+    $totalResults = StudyResult::whereHas('study', fn ($q) => $q->where('user_id', $user->id))->count();
+    $correctResults = StudyResult::whereHas('study', fn ($q) => $q->where('user_id', $user->id))
+        ->where('is_correct', true)
+        ->count();
 
     expect($totalResults)->toBeGreaterThanOrEqual(3);
     expect($correctResults)->toEqual($correctAnswers);
@@ -86,17 +86,17 @@ test('complete user workflow from registration to study completion', function ()
 
     // 10. Test that user can access their own data via API endpoints
     $response = $this->actingAs($user)
-                     ->getJson("/api/v1/decks/{$deck->id}/cards");
+        ->getJson("/api/v1/decks/{$deck->id}/cards");
 
     $response->assertStatus(200)
-             ->assertJsonStructure([
-                 'success',
-                 'message',
-                 'data',
-                 'api_version',
-                 'timestamp'
-             ])
-             ->assertJsonCount(3, 'data');
+        ->assertJsonStructure([
+            'success',
+            'message',
+            'data',
+            'api_version',
+            'timestamp',
+        ])
+        ->assertJsonCount(3, 'data');
 });
 
 test('user cannot access other users data', function () {
@@ -125,17 +125,17 @@ test('study session expiration works correctly', function () {
         'user_id' => $user->id,
         'deck_id' => $deck->id,
         'created_at' => now()->subDays(2),
-        'completed_at' => null
+        'completed_at' => null,
     ]);
 
     // Attempt to complete the expired study session
     $response = $this->patchJson("/api/v1/studies/{$oldStudy->id}/complete");
 
     $response->assertStatus(422)
-             ->assertJson([
-                 'success' => false,
-                 'message' => 'Study session has expired'
-             ]);
+        ->assertJson([
+            'success' => false,
+            'message' => 'Study session has expired',
+        ]);
 });
 
 test('concurrent study sessions are handled properly', function () {
@@ -149,13 +149,13 @@ test('concurrent study sessions are handled properly', function () {
     $study1 = Study::factory()->create([
         'user_id' => $user->id,
         'deck_id' => $deck->id,
-        'completed_at' => null
+        'completed_at' => null,
     ]);
 
     $study2 = Study::factory()->create([
         'user_id' => $user->id,
         'deck_id' => $deck->id,
-        'completed_at' => null
+        'completed_at' => null,
     ]);
 
     // Both should exist independently
@@ -191,16 +191,16 @@ test('deck statistics are calculated correctly', function () {
     $response = $this->getJson('/api/v1/decks');
 
     $response->assertStatus(200)
-             ->assertJsonStructure([
-                 'success',
-                 'data' => [
-                     '*' => [
-                         'id',
-                         'name',
-                         'cards_count'
-                     ]
-                 ]
-             ]);
+        ->assertJsonStructure([
+            'success',
+            'data' => [
+                '*' => [
+                    'id',
+                    'name',
+                    'cards_count',
+                ],
+            ],
+        ]);
 
     $responseData = $response->json('data');
 

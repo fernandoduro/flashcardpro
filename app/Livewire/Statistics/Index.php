@@ -11,9 +11,12 @@ class Index extends Component
 {
     protected StatisticsService $statisticsService;
 
+    /**
+     * Create a new component instance.
+     */
     public function __construct()
     {
-        $this->statisticsService = new StatisticsService();
+        $this->statisticsService = new StatisticsService;
     }
 
     /**
@@ -68,7 +71,7 @@ class Index extends Component
      * Computed properties are automatically passed to the view,
      * so we don't need to pass any data manually.
      */
-    public function render(): View
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.statistics.index')
             ->layout('layouts.app', ['title' => 'Statistics']);

@@ -2,15 +2,15 @@
 
 namespace App\Livewire\Decks;
 
+use App\CardGenerator\AiCardGenerator;
 use App\Models\Card;
 use App\Models\Deck;
-use App\CardGenerator\AiCardGenerator;
-use Illuminate\Contracts\View\View; 
+use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
-use Livewire\Component;
-use Illuminate\Support\Facades\Http;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Title('Deck: {deck.name}')]
 class Show extends Component
@@ -18,6 +18,7 @@ class Show extends Component
     use AuthorizesRequests;
 
     public Deck $deck;
+
     public bool $isGenerating = false;
 
     /**
@@ -53,22 +54,22 @@ class Show extends Component
         $this->deck = $this->deck->fresh()->load('cards');
     }
 
-
     public function generateAiCards(): void
     {
         $this->authorize('update', $this->deck);
         $this->isGenerating = true;
 
-        $cardGenerator = new AiCardGenerator();
+        $cardGenerator = new AiCardGenerator;
         $cards = $cardGenerator->generate(theme: $this->deck->name, count: 5);
 
         if (empty($cards)) {
             // Handle the failure
             $this->dispatch('flash-message', [
                 'type' => 'error',
-                'message' => 'Sorry, the AI card generator failed. Please try again.'
+                'message' => 'Sorry, the AI card generator failed. Please try again.',
             ]);
             $this->isGenerating = false;
+
             return;
         }
 
@@ -80,14 +81,16 @@ class Show extends Component
                 // Validate card data before saving
                 if (empty(trim($cardData['question'])) || empty(trim($cardData['answer']))) {
                     Log::warning('AI Card Generation: Skipping card with empty content', $cardData);
+
                     continue;
                 }
 
                 if (strlen($cardData['question']) > 1000 || strlen($cardData['answer']) > 1000) {
                     Log::warning('AI Card Generation: Skipping card with content too long', [
                         'question_length' => strlen($cardData['question']),
-                        'answer_length' => strlen($cardData['answer'])
+                        'answer_length' => strlen($cardData['answer']),
                     ]);
+
                     continue;
                 }
 
@@ -103,27 +106,29 @@ class Show extends Component
             Log::error('AI Card Generation: Database error while saving cards', [
                 'error' => $e->getMessage(),
                 'deck_id' => $this->deck->id,
-                'user_id' => $userId
+                'user_id' => $userId,
             ]);
 
             $this->dispatch('flash-message', [
                 'type' => 'error',
-                'message' => 'Database error occurred while saving cards. Please check your input and try again.'
+                'message' => 'Database error occurred while saving cards. Please check your input and try again.',
             ]);
             $this->isGenerating = false;
+
             return;
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Handle validation errors
             Log::error('AI Card Generation: Validation error while saving cards', [
                 'errors' => $e->errors(),
-                'deck_id' => $this->deck->id
+                'deck_id' => $this->deck->id,
             ]);
 
             $this->dispatch('flash-message', [
                 'type' => 'error',
-                'message' => 'Some generated cards contain invalid data. Please try generating again.'
+                'message' => 'Some generated cards contain invalid data. Please try generating again.',
             ]);
             $this->isGenerating = false;
+
             return;
         } catch (\Exception $e) {
             // Handle any other unexpected errors
@@ -131,14 +136,15 @@ class Show extends Component
                 'error' => $e->getMessage(),
                 'deck_id' => $this->deck->id,
                 'user_id' => $userId,
-                'trace' => $e->getTraceAsString()
+                'trace' => $e->getTraceAsString(),
             ]);
 
             $this->dispatch('flash-message', [
                 'type' => 'error',
-                'message' => 'An unexpected error occurred while saving cards. Please try again.'
+                'message' => 'An unexpected error occurred while saving cards. Please try again.',
             ]);
             $this->isGenerating = false;
+
             return;
         }
 
@@ -146,7 +152,7 @@ class Show extends Component
         if ($createdCards > 0) {
             $this->dispatch('flash-message', [
                 'type' => 'success',
-                'message' => "Successfully generated and saved {$createdCards} card" . ($createdCards > 1 ? 's' : '') . "!"
+                'message' => "Successfully generated and saved {$createdCards} card".($createdCards > 1 ? 's' : '').'!',
             ]);
         }
 
@@ -155,7 +161,7 @@ class Show extends Component
     }
 
     /**
-     * Render the component.
+     * Render the deck show component.
      */
     public function render(): View
     {

@@ -1,7 +1,7 @@
 <?php
 
-use App\Livewire\Decks;
 use App\Livewire\Cards;
+use App\Livewire\Decks;
 use App\Livewire\Statistics;
 use App\Models\Deck;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +20,7 @@ Route::get('/openapi.yaml', function () {
     if (! file_exists($path)) {
         abort(404);
     }
+
     return response()->file($path, ['Content-Type' => 'application/vnd.oai.openapi;charset=utf-8']);
 })->name('api.docs.yaml');
 

@@ -16,7 +16,7 @@ class ApiResponse
             'message' => $message,
             'data' => $data,
             'api_version' => 'v1',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ], $status);
     }
 
@@ -30,7 +30,7 @@ class ApiResponse
             'message' => $message,
             'errors' => $errors,
             'api_version' => 'v1',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ], $status);
     }
 
@@ -55,7 +55,7 @@ class ApiResponse
                 'prev_page_url' => $paginator->previousPageUrl(),
             ],
             'api_version' => 'v1',
-            'timestamp' => now()->toISOString()
+            'timestamp' => now()->toISOString(),
         ], 200);
     }
 

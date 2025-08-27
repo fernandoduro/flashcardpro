@@ -7,7 +7,7 @@ use Illuminate\Routing\Route;
 
 // This hook runs before every test, ensuring $this->request is always a fresh instance.
 beforeEach(function () {
-    $this->request = new StoreCardRequest();
+    $this->request = new StoreCardRequest;
 });
 
 it('has the correct validation rules', function () {
@@ -22,9 +22,9 @@ it('has the correct validation rules', function () {
 it('passes validation with valid data', function () {
     $data = [
         'question' => 'What is the capital of France?',
-        'answer' => 'Paris'
+        'answer' => 'Paris',
     ];
-    
+
     // Notice we use $this->request here
     $validator = validator($data, $this->request->rules());
 
@@ -38,10 +38,10 @@ it('fails validation with invalid data', function (array $data, string $expected
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey($expectedErrorKey);
 })->with([
-    'short question'      => [['question' => 'Hi', 'answer' => 'Paris'], 'question'],
-    'missing question'    => [['answer' => 'Paris'], 'question'],
-    'empty answer'        => [['question' => 'A valid question?', 'answer' => ''], 'answer'],
-    'missing answer'      => [['question' => 'A valid question?'], 'answer'],
+    'short question' => [['question' => 'Hi', 'answer' => 'Paris'], 'question'],
+    'missing question' => [['answer' => 'Paris'], 'question'],
+    'empty answer' => [['question' => 'A valid question?', 'answer' => ''], 'answer'],
+    'missing answer' => [['question' => 'A valid question?'], 'answer'],
 ]);
 
 it('authorizes a user to create a card for their own deck', function () {
@@ -67,13 +67,12 @@ it('prevents a user from creating a card for another user\'s deck', function () 
     expect($this->request->authorize())->toBeFalse();
 });
 
-
 function mockRequestWithRoute($request, $deck)
 {
     $mockRoute = mock(Route::class);
     $mockRoute->shouldReceive('parameter')
-              ->with('deck', null)
-              ->andReturn($deck);
+        ->with('deck', null)
+        ->andReturn($deck);
 
     $request->setRouteResolver(function () use ($mockRoute) {
         return $mockRoute;

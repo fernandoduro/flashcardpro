@@ -11,11 +11,17 @@ class Card extends Model
 
     protected $fillable = ['user_id', 'question', 'answer', 'deck_id'];
 
+    /**
+     * Get the user that owns the card.
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get the deck that owns the card.
+     */
     public function deck()
     {
         return $this->belongsTo(Deck::class);

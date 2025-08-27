@@ -17,11 +17,12 @@ return new class extends Migration
         // 2. Add the new 'deck_id' column to the 'cards' table
         Schema::table('cards', function (Blueprint $table) {
             $table->foreignId('deck_id')
-                  ->after('user_id') 
-                  ->constrained()
-                  ->onDelete('cascade'); 
+                ->after('user_id')
+                ->constrained()
+                ->onDelete('cascade');
         });
     }
+
     /**
      * Reverse the migrations.
      */

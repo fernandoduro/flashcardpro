@@ -3,12 +3,11 @@
 namespace App\Livewire\Decks;
 
 use App\Models\Deck;
-use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\On;
-use Livewire\Component;
 use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Title('Dashboard')]
 class Index extends Component
@@ -35,7 +34,7 @@ class Index extends Component
         $deck = Deck::findOrFail($deckId);
         $this->authorize('update', $deck);
 
-        $deck->update(['is_pinned' => !$deck->is_pinned]);
+        $deck->update(['is_pinned' => ! $deck->is_pinned]);
     }
 
     /**
@@ -60,7 +59,7 @@ class Index extends Component
      */
     #[On('deckCreated')]
     #[On('deckUpdated')]
-    public function render(): View
+    public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.decks.index')
             ->layout('layouts.app');

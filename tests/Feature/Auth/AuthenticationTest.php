@@ -3,8 +3,6 @@
 use App\Models\User;
 use Livewire\Volt\Volt;
 
-use function Pest\Laravel\post;
-
 test('login screen can be rendered', function () {
     $response = $this->get('/login');
 

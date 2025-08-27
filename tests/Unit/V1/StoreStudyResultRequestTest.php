@@ -5,12 +5,11 @@ use App\Models\Card;
 use App\Models\Deck;
 use App\Models\Study;
 use App\Models\User;
-use Illuminate\Support\Facades\Validator;
 
 test('store study result request has correct validation rules', function () {
     $user = User::factory()->create();
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->setUserResolver(function () use ($user) {
         return $user;
     });
@@ -35,10 +34,10 @@ test('store study result request authorization with own study', function () {
     $deck = Deck::factory()->create(['user_id' => $user->id]);
     $study = Study::factory()->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['study_id' => $study->id]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -52,7 +51,7 @@ test('store study result request authorization with other users study', function
     $otherUser = User::factory()->create();
     $study = Study::factory()->create(['user_id' => $otherUser->id]);
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['study_id' => $study->id]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -64,7 +63,7 @@ test('store study result request authorization with other users study', function
 test('store study result request authorization with nonexistent study', function () {
     $user = User::factory()->create();
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['study_id' => 99999]); // Non-existent ID
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -78,20 +77,20 @@ test('store study result request validation passes with valid data', function ()
     $deck = Deck::factory()->create(['user_id' => $user->id]);
     $study = Study::factory()->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
     $card = Card::factory()->create([
         'user_id' => $user->id,
-        'deck_id' => $deck->id
+        'deck_id' => $deck->id,
     ]);
 
     $data = [
         'study_id' => $study->id,
         'card_id' => $card->id,
-        'is_correct' => true
+        'is_correct' => true,
     ];
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['user' => $user]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -107,10 +106,10 @@ test('store study result request validation fails with missing study id', functi
 
     $data = [
         'card_id' => 1,
-        'is_correct' => true
+        'is_correct' => true,
     ];
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['user' => $user]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -127,10 +126,10 @@ test('store study result request validation fails with missing card id', functio
 
     $data = [
         'study_id' => 1,
-        'is_correct' => true
+        'is_correct' => true,
     ];
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['user' => $user]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -147,10 +146,10 @@ test('store study result request validation fails with missing is correct', func
 
     $data = [
         'study_id' => 1,
-        'card_id' => 1
+        'card_id' => 1,
     ];
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['user' => $user]);
     $request->setUserResolver(function () use ($user) {
         return $user;
@@ -168,10 +167,10 @@ test('store study result request validation fails with invalid is correct', func
     $data = [
         'study_id' => 1,
         'card_id' => 1,
-        'is_correct' => 'not_boolean'
+        'is_correct' => 'not_boolean',
     ];
 
-    $request = new StoreStudyResultRequest();
+    $request = new StoreStudyResultRequest;
     $request->merge(['user' => $user]);
     $request->setUserResolver(function () use ($user) {
         return $user;

@@ -25,7 +25,7 @@ test('can create a new card', function () {
         ->set('answer', 'Paris')
         ->call('save')
         ->assertDispatched('cardCreated');
-        
+
     assertDatabaseHas('cards', [
         'deck_id' => $deck->id,
         'user_id' => $this->user->id,

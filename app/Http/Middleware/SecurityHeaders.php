@@ -4,15 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 
 class SecurityHeaders
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -48,8 +45,8 @@ class SecurityHeaders
             "worker-src 'self' blob: http://localhost:5173",
             "child-src 'self' blob:",
             "frame-ancestors 'none'",
-            "upgrade-insecure-requests",
-            "block-all-mixed-content"
+            'upgrade-insecure-requests',
+            'block-all-mixed-content',
         ];
 
         $response->headers->set('Content-Security-Policy', implode('; ', $csp));

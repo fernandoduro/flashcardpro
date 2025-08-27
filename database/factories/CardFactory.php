@@ -13,7 +13,7 @@ class CardFactory extends Factory
         return [
             'user_id' => User::factory(),
             'deck_id' => Deck::factory(),
-            'question' => rtrim($this->faker->sentence(), '.') . '?',
+            'question' => rtrim($this->faker->sentence(), '.').'?',
             'answer' => $this->faker->paragraph(),
         ];
     }
