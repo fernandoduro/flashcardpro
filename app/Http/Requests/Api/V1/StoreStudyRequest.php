@@ -13,6 +13,10 @@ class StoreStudyRequest extends FormRequest
      */
     public function authorize(): bool
     {
+        if (!$this->user()) {
+            return false;
+        }
+
         $deck = Deck::find($this->input('deck_id'));
 
         return $deck && $this->user()->can('view', $deck);
@@ -23,8 +27,19 @@ class StoreStudyRequest extends FormRequest
      */
     public function rules(): array
     {
+        // If user is not authenticated, return basic rules (validation will still fail due to authorization)
+        if (! $this->user()) {
+            return [
+                'deck_id' => ['required', 'integer'],
+            ];
+        }
+
         return [
-            'deck_id' => ['required', 'integer', Rule::exists('decks', 'id')],
+            'deck_id' => [
+                'required',
+                'integer',
+                Rule::exists('decks', 'id')->where('user_id', $this->user()->id),
+            ],
         ];
     }
 }

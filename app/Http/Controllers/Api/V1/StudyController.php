@@ -67,8 +67,8 @@ class StudyController extends Controller
     public function recordResult(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'study_id' => ['required', 'integer', 'exists:studies,id'],
-            'card_id' => ['required', 'integer', 'exists:cards,id'],
+            'study_id' => ['required', 'integer', Rule::exists('studies', 'id')->where('user_id', $request->user()->id)],
+            'card_id' => ['required', 'integer', Rule::exists('cards', 'id')->where('user_id', $request->user()->id)],
             'is_correct' => ['required', 'boolean'],
         ]);
 

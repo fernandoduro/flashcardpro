@@ -11,6 +11,16 @@ class Deck extends Model
 
     protected $fillable = ['user_id', 'name', 'public', 'cover_image_path', 'is_pinned'];
 
+    protected $casts = [
+        'public' => 'boolean',
+        'is_pinned' => 'boolean',
+    ];
+
+    protected $attributes = [
+        'public' => false,
+        'is_pinned' => false,
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -54,9 +64,9 @@ class Deck extends Model
      * Scope a query to order by most studied decks.
      */
     public function scopeMostStudied($query)
-    {
-        return $query->withCount('studies')
-            ->having('studies_count', '>', 0)
+    {  
+        return $query->whereHas('studies')
+            ->withCount('studies')
             ->orderByDesc('studies_count');
     }
 

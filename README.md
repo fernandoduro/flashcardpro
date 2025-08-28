@@ -84,7 +84,7 @@ composer install
 ```
 
 **3. Start the Docker Containers**
-The `docker-compose.yml` is configured to use the required PHP and MySQL versions. You should have 3 containers running (`flashcardpro`,`mysql` and `selenium`).
+The `docker-compose.yml` is configured to use the required PHP and MySQL versions. You should have 2 containers running (`flashcardpro` and `mysql`).
 
 ```bash
 sail up -d

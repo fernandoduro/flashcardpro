@@ -19,7 +19,7 @@ class ConfirmationModal extends Component
     /**
      * Open the confirmation modal with specified content.
      */
-    public function open(string $title, string $message, string $confirmAction, int $itemId): void
+    public function open(string $title, string $message, string $confirmAction, $itemId): void
     {
         $this->title = $title;
         $this->message = $message;

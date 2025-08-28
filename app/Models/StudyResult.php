@@ -11,6 +11,10 @@ class StudyResult extends Model
 
     protected $fillable = ['study_id', 'card_id', 'is_correct'];
 
+    protected $casts = [
+        'is_correct' => 'boolean',
+    ];
+
     /**
      * Get the study that owns the study result.
      */

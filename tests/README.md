@@ -2,7 +2,7 @@
 
 ## Overview
 
-This test suite provides comprehensive coverage for the FlashcardPro application, including unit tests, feature tests, integration tests, browser tests, and performance tests.
+This test suite provides comprehensive coverage for the FlashcardPro application, including unit tests, feature tests, integration tests, and performance tests.
 
 ## Test Structure
 
@@ -10,11 +10,7 @@ This test suite provides comprehensive coverage for the FlashcardPro application
 
 ```
 tests/
-├── Browser/              # Laravel Dusk (E2E) Tests
-│   ├── StudySessionTest.php
-│   ├── CompleteStudyWorkflowTest.php
-│   └── [other browser tests]
-├── Feature/              # Feature Tests (HTTP, Livewire)
+├── Feature/             # Feature Tests (HTTP, Livewire)
 │   ├── Api/             # API Endpoint Tests
 │   ├── Auth/            # Authentication Tests
 │   ├── Livewire/        # Livewire Component Tests
@@ -28,7 +24,6 @@ tests/
 │   ├── Policies/       # Authorization Policy Tests
 │   ├── Resources/      # API Resource Tests
 │   └── ExampleTest.php
-├── DuskTestCase.php     # Browser Test Base Class
 ├── TestCase.php         # Feature Test Base Class
 ├── Pest.php             # Pest Configuration
 └── README.md            # This file
@@ -51,14 +46,7 @@ tests/
 - **Livewire Tests:** Component interactions and reactive behavior
 - **Integration Tests:** Complex user workflows from end-to-end
 
-### 3. Browser Tests (`tests/Browser/`)
-
-**Purpose:** End-to-end user journey testing
-- **Study Workflow:** Complete study session from start to finish
-- **Navigation:** User interface interactions
-- **JavaScript Integration:** Vue.js components and API token handling
-
-### 4. Performance Tests (`tests/Feature/Performance/`)
+### 3. Performance Tests (`tests/Feature/Performance/`)
 
 **Purpose:** Ensure application performs well under load
 - **API Response Times:** Critical endpoints respond quickly
@@ -79,9 +67,6 @@ php artisan test tests/Unit
 
 # Feature tests only
 php artisan test tests/Feature
-
-# Browser tests (requires Selenium/WebDriver)
-php artisan test tests/Browser
 
 # Specific test file
 php artisan test tests/Feature/Api/StudyApiTest.php
@@ -107,14 +92,6 @@ php artisan test --parallel
   - Database refreshing
   - Parallel test execution
 
-### Laravel Dusk
-- **Configuration:** `tests/DuskTestCase.php`
-- **Browser:** Chrome (headless by default)
-- **Features:**
-  - JavaScript interaction testing
-  - Screenshot capture on failures
-  - Cross-browser compatibility
-
 ## Test Data
 
 ### Factories
@@ -133,7 +110,6 @@ php artisan test --parallel
 ### Naming Conventions
 - **Unit Tests:** `test_method_name_description`
 - **Feature Tests:** `test_user_can_action_description`
-- **Browser Tests:** `test_complete_workflow_description`
 
 ### Test Structure
 ```php
@@ -188,7 +164,6 @@ test('user can create a deck', function () {
 ### Common Issues
 1. **Database State:** Use `RefreshDatabase` or run with `--without-databases`
 2. **Authentication:** Ensure proper `actingAs()` usage
-3. **Browser Tests:** Check Selenium/WebDriver setup
 
 ### Debugging Commands
 ```bash
@@ -202,19 +177,6 @@ php artisan test tests/Feature/Api/AuthApiTest.php --debug
 php artisan test --parallel
 ```
 
-## Continuous Integration
-
-### GitHub Actions
-The test suite is configured to run on:
-- **Pull Requests:** All tests
-- **Pushes to main:** Full test suite with coverage
-- **Scheduled:** Performance regression tests
-
-### Test Environments
-- **Local:** Full test suite
-- **CI/CD:** Optimized subset with coverage
-- **Staging:** Performance and integration tests
-
 ## Contributing
 
 ### Adding New Tests
@@ -227,17 +189,6 @@ The test suite is configured to run on:
 ### Test Organization Guidelines
 - **Unit tests** for isolated logic
 - **Feature tests** for complete workflows
-- **Browser tests** for UI interactions
 - **Performance tests** for scalability validation
 
----
 
-## Test Statistics
-
-*Last Updated: December 2024*
-
-- **Total Tests:** 72+
-- **Test Files:** 20+
-- **Coverage:** 95%+
-- **Execution Time:** < 30 seconds (parallel)
-- **Categories:** Unit, Feature, Integration, Browser, Performance
