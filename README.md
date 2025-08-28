@@ -18,7 +18,7 @@
   - [Required](#required)
   - [Database](#database)
   - [AI Services (Optional)](#ai-services-optional)
-  - [Docker enviroment(Optional)](#docker-enviromentoptional)
+  - [Docker environment(Optional)](#docker-environmentoptional)
 - [Test User Accounts](#test-user-accounts)
 - [Running the Test Suite](#running-the-test-suite)
 - [Architectural Decisions](#architectural-decisions)
@@ -70,36 +70,43 @@ This project is configured to run seamlessly with Laravel Sail (Docker).
 ---
 
 **1. Unzip the Project & Navigate**
-Unzip the submitted `flashcard-pro.zip` file and open a terminal in the project's root directory.
+Unzip the submitted `flashcardpro.zip` file and open a terminal in the project's root directory.
 
 **2. Prepare the Environment File**
-```powershell
-copy .env.example .env
-```
-
-**3. Start the Docker Containers**
-The `docker-compose.yml` is configured to use the required PHP and MySQL versions.
-```powershell
-docker-compose up -d
+```bash
+cp .env.example .env
 ```
 
 **4. Install Composer Dependencies**
-docker-compose exec flashcardpro composer install
+
+```bash
+composer install
+```
+
+**3. Start the Docker Containers**
+The `docker-compose.yml` is configured to use the required PHP and MySQL versions. You should have 3 containers running (`flashcardpro`,`mysql` and `selenium`).
+
+```bash
+sail up -d
+```
 
 **5. Finalize Setup**
 Run these commands to generate the application key, run migrations, and link the storage directory.
-```powershell
-docker-compose exec flashcardpro php artisan key:generate
-docker-compose exec flashcardpro php artisan migrate:fresh --seed
-docker-compose exec flashcardpro php artisan storage:link
+
+```bash
+sail artisan key:generate
+sail artisan migrate:fresh --seed
+sail artisan storage:link
 ```
 
 **6. Build Frontend Assets**
 Install Node.js dependencies and start the Vite development server.
-```powershell
-docker-compose exec flashcardpro npm install
-npm run dev
+
+```bash
+sail npm install
+sail npm run dev
 ```
+
 *(Note: You will need to keep the `npm run dev` process running in its own dedicated terminal while you use the application).*
 
 **7. Access the Application**
@@ -129,11 +136,12 @@ The application requires the following environment variables:
 - `DB_PASSWORD` - Database password
 
 ### AI Services (Optional)
-- `GEMINI_API_KEY` - Google Gemini API key for AI card generation
-- `OPENAI_API_KEY` - OpenAI API key (experimental alternative)
+
+- `GEMINI_API_KEY` - (Recommended) Google Gemini API key for AI card generation ([How to get one](https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&cad=rja&uact=8&ved=2ahUKEwjCx9vf8auPAxUFr5UCHWiYLpEQ-tANegQIIxAC&url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DRVGbLSVFtIk%26t%3D21&usg=AOvVaw2aA_gMq6SXtJwBfDsUOOrr&opi=89978449)
+- `OPENAI_API_KEY` - OpenAI API key (experimental alternative) ([Where do I find one?](https://help.openai.com/en/articles/4936850-where-do-i-find-my-openai-api-key)
 - `AI_MAIN_ENGINE` - Preferred AI engine (gemini or openai)
 
-### Docker enviroment(Optional)
+### Docker environment(Optional)
 - `WWWGROUP` - 1000 for it to work on Windows 
 - `WWWUSER` - 1000 for it to work on Windows 
 - `FORWARD_DB_PORT` - 3309 or any other if host machine is occupied
@@ -142,7 +150,7 @@ The application requires the following environment variables:
 
 ## Test User Accounts
 
-The database seeder creates one pre-made account for immediate use:
+The database seeder creates one pre-made account for immediate use and testing:
 
 - **Email:** `admin@example.com` / **Password:** `password`
 
@@ -152,10 +160,25 @@ You can also create your own account via the registration page.
 
 ## Running the Test Suite
 
-The project has a comprehensive test suite written with Pest. To run all tests, execute the following command:
-```powershell
-docker-compose exec flashcardpro php artisan test
+The project has a comprehensive test suite. To run all tests, execute the following commands:
+
+#Pest tests 
+```bash
+cp .env.testing.example .env.testing
+sail artisan key:generate --env=testing
+sail test
 ```
+
+#Laravel Dusk
+```bash
+cp .env.dusk.local.example .env.dusk.local
+sail artisan key:generate --env=dusk.local
+sail npm run build
+sail run touch /var/www/html/database/dusk.sqlite
+sail run chown -R sail:sail /var/www/html/database/dusk.sqlite
+sail dusk
+```
+*(Note: Drop your `npm run dev` process, or it will overwrite built JS and CSS files, breaking the test. Dusk will also temporarily replace your .env with the .env.dusk.local).*
 
 ---
 
@@ -212,17 +235,17 @@ Before diving into specific issues, verify these essentials:
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-docker-compose exec flashcardpro php artisan optimize:clear
+sail artisan optimize:clear
 
 # Restart containers to ensure fresh state
-docker-compose down
-docker-compose up -d
+sail down
+sail up -d
 
 # Regenerate autoloader
-docker-compose exec flashcardpro composer dump-autoload
+sail composer dump-autoload
 
 # If still failing, check routes
-docker-compose exec flashcardpro php artisan route:list --path=api
+sail artisan route:list --path=api
 ```
 
 **Prevention:** Always run `php artisan optimize:clear` after making routing changes.
@@ -237,17 +260,17 @@ docker-compose exec flashcardpro php artisan route:list --path=api
 **Solutions:**
 ```bash
 # 1. Verify API token generation
-docker-compose exec flashcardpro php artisan tinker
+sail tinker
 # In tinker:
 $user = App\Models\User::first();
 $user->tokens()->delete(); // Clear old tokens
 $user->createToken('test')->plainTextToken;
 
 # 2. Check if Vite dev server is running
-docker-compose exec flashcardpro ps aux | grep node
+sail run ps aux | grep node
 
 # 3. Rebuild assets if needed
-docker-compose exec flashcardpro npm run build
+sail npm run build
 
 # 4. Clear browser cache and localStorage
 # Open browser dev tools → Application → Local Storage → Clear
@@ -265,7 +288,7 @@ docker-compose exec flashcardpro npm run build
 **Solutions:**
 ```bash
 # 1. Check API key configuration
-docker-compose exec flashcardpro php artisan tinker
+sail tinker
 # In tinker:
 dd(env('GEMINI_API_KEY')); // Should not be null
 
@@ -279,7 +302,7 @@ curl -H "x-goog-api-key: YOUR_API_KEY" \
      -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
 
 # 4. Check application logs
-docker-compose exec flashcardpro tail -f storage/logs/laravel.log
+sail run tail -f storage/logs/laravel.log
 ```
 
 **Prevention:** Always set either `GEMINI_API_KEY` or `OPENAI_API_KEY` in your `.env` file.
@@ -294,21 +317,21 @@ docker-compose exec flashcardpro tail -f storage/logs/laravel.log
 **Solutions:**
 ```bash
 # 1. Check database service status
-docker-compose ps mysql
+sail run ps mysql
 
 # 2. Verify database credentials in .env
 cat .env | grep DB_
 
 # 3. Test database connection
-docker-compose exec flashcardpro php artisan tinker
+sail tinker
 # In tinker:
 DB::connection()->getPdo();
 
 # 4. Reset database if needed
-docker-compose exec flashcardpro php artisan migrate:fresh --seed
+sail artisan migrate:fresh --seed
 
 # 5. Check MySQL logs
-docker-compose logs mysql
+sail logs mysql
 ```
 
 **Prevention:** Ensure Docker has sufficient resources and no port conflicts.
@@ -323,13 +346,13 @@ docker-compose logs mysql
 **Solutions:**
 ```bash
 # 1. Install dependencies
-docker-compose exec flashcardpro npm install
+sail npm install
 
 # 2. Start Vite dev server
 npm run dev
 
 # 3. Build for production
-docker-compose exec flashcardpro npm run build
+sail npm run build
 
 # 4. Clear Vite cache
 rm -rf node_modules/.vite
@@ -353,12 +376,12 @@ netstat -tulpn | grep 5173
 docker-compose exec -u root flashcardpro chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 2. Fix permissions
-docker-compose exec flashcardpro chmod -R 755 storage
-docker-compose exec flashcardpro chmod -R 755 bootstrap/cache
+sail run chmod -R 755 storage
+sail run chmod -R 755 bootstrap/cache
 
 # 3. Restart containers
-docker-compose down
-docker-compose up -d
+sail down
+sail up -d
 ```
 
 **Prevention:** Configure proper user permissions in docker-compose.yml for Windows development.
@@ -373,18 +396,18 @@ docker-compose up -d
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-docker-compose exec flashcardpro php artisan optimize:clear
+sail artisan optimize:clear
 
 # Clear specific caches
-docker-compose exec flashcardpro php artisan config:clear
-docker-compose exec flashcardpro php artisan route:clear
-docker-compose exec flashcardpro php artisan view:clear
+sail artisan config:clear
+sail artisan route:clear
+sail artisan view:clear
 
 # Regenerate autoloader
-docker-compose exec flashcardpro composer dump-autoload
+sail composer dump-autoload
 
 # Restart PHP-FPM if using production
-docker-compose exec flashcardpro php artisan optimize
+sail artisan optimize
 ```
 
 **Prevention:** Run `php artisan optimize:clear` after any structural changes.
@@ -399,7 +422,7 @@ docker-compose exec flashcardpro php artisan optimize
 **Solutions:**
 ```bash
 # 1. Check slow queries
-docker-compose exec flashcardpro php artisan tinker
+sail tinker
 # In tinker:
 DB::listen(function ($query) {
     if ($query->time > 1000) { // Log queries slower than 1s
@@ -416,10 +439,10 @@ DB::listen(function ($query) {
 DB_LOG_QUERIES=true
 
 # 3. Check memory usage
-docker-compose exec flashcardpro php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
+sail php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
 
 # 4. Optimize images and assets
-docker-compose exec flashcardpro php artisan storage:link
+sail artisan storage:link
 ```
 
 **Prevention:** Use computed property caching and eager loading as implemented in the Statistics component.
@@ -438,14 +461,14 @@ cat .env | grep APP_ENV
 cat .env | grep APP_DEBUG
 
 # 2. Clear configuration cache
-docker-compose exec flashcardpro php artisan config:clear
-docker-compose exec flashcardpro php artisan config:cache
+sail artisan config:clear
+sail artisan config:cache
 
 # 3. Check cached configuration
-docker-compose exec flashcardpro php artisan config:show app
+sail artisan config:show app
 
 # 4. Regenerate application key
-docker-compose exec flashcardpro php artisan key:generate
+sail artisan key:generate
 ```
 
 **Prevention:** Use `php artisan config:cache` in production but `php artisan config:clear` during development.
@@ -456,14 +479,14 @@ If you encounter an issue not covered here:
 
 1. **Check the logs:**
    ```bash
-   docker-compose exec flashcardpro tail -f storage/logs/laravel.log
-   docker-compose logs flashcardpro
+   sail run tail -f storage/logs/laravel.log
+   sail logs flashcardpro
    ```
 
 2. **Verify your environment:**
    ```bash
-   docker-compose exec flashcardpro php artisan about
-   docker-compose exec flashcardpro composer show
+   sail artisan about
+   sail composer show
    ```
 
 3. **Test API endpoints:**
@@ -475,11 +498,11 @@ If you encounter an issue not covered here:
 4. **Common debugging commands:**
    ```bash
    # Full system reset
-   docker-compose down -v
-   docker-compose up -d
-   docker-compose exec flashcardpro composer install
-   docker-compose exec flashcardpro php artisan migrate:fresh --seed
-   docker-compose exec flashcardpro npm install && npm run dev
+   sail down -v
+   sail up -d
+   composer install
+   sail artisan migrate:fresh --seed
+   sail npm install && npm run dev
    ```
 
 **Remember:** Most issues can be resolved by clearing caches and restarting services. Always check logs first when debugging!
