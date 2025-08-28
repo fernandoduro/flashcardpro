@@ -130,7 +130,6 @@ class Show extends Component
         $cards = $cardGenerator->generate(theme: $this->deck->name, count: 5);
 
         if (empty($cards)) {
-            // Handle the failure
             $this->dispatch('flash-message', [
                 'type' => 'error',
                 'message' => 'Sorry, the AI card generator failed. Please try again.',
@@ -145,7 +144,6 @@ class Show extends Component
 
         try {
             foreach ($cards as $cardData) {
-                // Validate card data before saving
                 if (empty(trim($cardData['question'])) || empty(trim($cardData['answer']))) {
                     Log::warning('AI Card Generation: Skipping card with empty content', $cardData);
 
@@ -169,7 +167,6 @@ class Show extends Component
                 $createdCards++;
             }
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database-specific errors
             Log::error('AI Card Generation: Database error while saving cards', [
                 'error' => $e->getMessage(),
                 'deck_id' => $this->deck->id,
@@ -184,7 +181,6 @@ class Show extends Component
 
             return;
         } catch (\Illuminate\Validation\ValidationException $e) {
-            // Handle validation errors
             Log::error('AI Card Generation: Validation error while saving cards', [
                 'errors' => $e->errors(),
                 'deck_id' => $this->deck->id,
@@ -198,7 +194,6 @@ class Show extends Component
 
             return;
         } catch (\Exception $e) {
-            // Handle any other unexpected errors
             Log::error('AI Card Generation: Unexpected error while saving cards', [
                 'error' => $e->getMessage(),
                 'deck_id' => $this->deck->id,
@@ -215,7 +210,6 @@ class Show extends Component
             return;
         }
 
-        // Provide feedback on successful creation
         if ($createdCards > 0) {
             $this->dispatch('flash-message', [
                 'type' => 'success',

@@ -41,6 +41,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/study/{deck}', function (Deck $deck, \Illuminate\Http\Request $request) {
         $deck->loadCount('cards'); // Load the cards count relationship
         $cardCount = (int) $request->query('count', $deck->cards_count);
+
         return view('study.show', [
             'deck' => $deck,
             'requestedCardCount' => $cardCount,

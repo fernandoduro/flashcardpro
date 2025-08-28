@@ -94,18 +94,4 @@ class StatisticsService
             'data' => $counts,
         ];
     }
-
-    /**
-     * Get comprehensive statistics for a user.
-     */
-    public function getUserStatistics(int $userId): array
-    {
-        return [
-            'total_completed_studies' => $this->getTotalCompletedStudies($userId),
-            'answer_stats' => $this->getAnswerStats($userId),
-            'most_wronged_card' => $this->getMostWrongedCard($userId),
-            'deck_study_ranking' => $this->getDeckStudyRanking($userId),
-            'studies_per_day_chart' => $this->getStudiesPerDayChartData($userId),
-        ];
-    }
 }

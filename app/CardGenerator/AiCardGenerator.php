@@ -20,11 +20,11 @@ class AiCardGenerator
      * @param  int  $count  The number of cards to generate.
      * @return array|null An array of generated cards or null on failure.
      */
-    public $ai_main_engine;
+    private string $aiMainEngine;
 
     public function __construct()
     {
-        $this->ai_main_engine = env('AI_MAIN_ENGINE', 'gemini'); // or 'openai' (experimental)
+        $this->aiMainEngine = env('AI_MAIN_ENGINE', 'gemini');
     }
 
     public function generate(string $theme, int $count = 10): ?array
@@ -55,7 +55,7 @@ class AiCardGenerator
             ";
 
             try {
-                switch ($this->ai_main_engine) {
+                switch ($this->aiMainEngine) {
                     case 'openai':
                         $prompt .= "
                             Provide the response as a JSON array of objects, where each object has a 'question' key and an 'answer' key.
@@ -79,11 +79,11 @@ class AiCardGenerator
                         $generationConfig = new GenerationConfig(
                             responseMimeType: ResponseMimeType::APPLICATION_JSON,
                             responseSchema: new Schema(
-                                type: DataType::OBJECT, // The root is an object
+                                type: DataType::OBJECT,
                                 properties: [
-                                    'cards' => new Schema( // It has a key called 'cards'
-                                        type: DataType::ARRAY, // The value is an array
-                                        items: new Schema( // The items in the array are objects
+                                    'cards' => new Schema(
+                                        type: DataType::ARRAY,
+                                        items: new Schema(
                                             type: DataType::OBJECT,
                                             properties: [
                                                 'question' => new Schema(type: DataType::STRING),
@@ -96,17 +96,14 @@ class AiCardGenerator
                             )
                         );
 
-                        // 3. Make the API call using the correct, modern syntax
-                        $result = Gemini::generativeModel(model: 'gemini-1.5-flash-latest') // Use a modern, valid model name
+                        $result = Gemini::generativeModel(model: 'gemini-1.5-flash-latest')
                             ->withGenerationConfig($generationConfig)
                             ->generateContent($prompt);
 
-                        // 4. The SDK can directly return the parsed JSON object/array
                         $jsonContent = $result->text();
                         break;
                 }
 
-                // Safely decode JSON with proper error handling
                 $decodedResponse = json_decode($jsonContent, true);
 
                 if (json_last_error() !== JSON_ERROR_NONE) {
@@ -118,24 +115,16 @@ class AiCardGenerator
                     return null;
                 }
 
-                // Handle different response structures more robustly
                 $generatedCards = null;
 
                 if (is_array($decodedResponse)) {
-                    // Check for single card object first
                     if (! empty($decodedResponse['question']) && ! empty($decodedResponse['answer'])) {
                         $generatedCards = [$decodedResponse];
-                    }
-                    // Check for cards wrapper
-                    elseif (isset($decodedResponse['cards']) && is_array($decodedResponse['cards'])) {
+                    } elseif (isset($decodedResponse['cards']) && is_array($decodedResponse['cards'])) {
                         $generatedCards = $decodedResponse['cards'];
-                    }
-                    // Check if the response is directly an array of cards
-                    elseif (count($decodedResponse) > 0 && isset($decodedResponse[0]['question'])) {
+                    } elseif (count($decodedResponse) > 0 && isset($decodedResponse[0]['question'])) {
                         $generatedCards = $decodedResponse;
-                    }
-                    // Handle nested array structure
-                    elseif (count($decodedResponse) === 1) {
+                    } elseif (count($decodedResponse) === 1) {
                         $firstValue = reset($decodedResponse);
                         if (is_array($firstValue)) {
                             if (isset($firstValue['question'])) {
@@ -157,7 +146,6 @@ class AiCardGenerator
                     return null;
                 }
 
-                // Validate and sanitize each card
                 $validatedCards = [];
                 foreach ($generatedCards as $cardData) {
                     if (! is_array($cardData) ||
@@ -170,7 +158,6 @@ class AiCardGenerator
                         continue;
                     }
 
-                    // Sanitize content
                     $validatedCards[] = [
                         'question' => trim(strip_tags($cardData['question'])),
                         'answer' => trim(strip_tags($cardData['answer'])),

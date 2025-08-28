@@ -195,11 +195,9 @@ apiClient.interceptors.response.use(
     }
 );
 
-// Lifecycle Hook
 onMounted(async () => {
-    // Pre-flight check for the API token
     try {
-        getApiToken(); // This will throw an error if token is not available
+        getApiToken();
     } catch (e) {
         error.value = e.message;
         loading.value = false;
@@ -207,7 +205,6 @@ onMounted(async () => {
     }
 
     try {
-        // Retry logic for starting study session
         const sessionResponse = await retryApiCall(
             () => apiClient.post('/studies', { deck_id: props.deck.id }),
             3,
@@ -224,7 +221,6 @@ onMounted(async () => {
         studyId.value = sessionResponse.data.data.study_id;
 
 
-        // Retry logic for fetching cards
         const cardsResponse = await retryApiCall(
             () => apiClient.get(`/decks/${props.deck.id}/cards`),
             3,
@@ -240,12 +236,9 @@ onMounted(async () => {
 
         let fetchedCards = cardsResponse.data.data;
 
-        // Shuffle the cards to randomize the order
         fetchedCards = fetchedCards.sort(() => Math.random() - 0.5);
 
-        // Limit the number of cards based on requestedCardCount
         if (requestedCardCount.value && requestedCardCount.value > 0) {
-            // Ensure we don't try to slice more cards than available
             const maxCards = Math.min(requestedCardCount.value, fetchedCards.length);
             fetchedCards = fetchedCards.slice(0, maxCards);
         }
@@ -257,7 +250,6 @@ onMounted(async () => {
         }
     } catch (err) {
         console.error("Failed to start study session:", err);
-        // Provide a user-friendly error from the API response if available
         if (err.response?.status === 401) {
             error.value = "Your session has expired. Please log in again.";
         } else if (err.response?.status === 403) {
@@ -272,7 +264,6 @@ onMounted(async () => {
     }
 });
 
-// Utility function for retrying API calls with exponential backoff
 const retryApiCall = async (apiCall, maxRetries = 3, operation = 'operation') => {
     let lastError;
 

@@ -7,7 +7,7 @@
     <div class="absolute top-2 right-2 z-10">
         <x-dropdown align="right" width="48">
             <x-slot name="trigger">
-                <button class="h-8 w-8 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-gray-200">
+                <button class="cursor-pointer h-8 w-8 flex items-center justify-center rounded-full bg-white/70 backdrop-blur-sm text-gray-600 hover:bg-gray-200">
                     <i class="fa-solid fa-ellipsis-vertical"></i>
                 </button>
             </x-slot>
@@ -20,7 +20,7 @@
                     <i class="fa-solid fa-fw fa-pen-to-square mr-2 text-gray-400"></i>
                     Edit
                 </x-dropdown-link>
-                <x-dropdown-link href="#" wire:click.prevent="$dispatch('openConfirmationModal', { title: 'Delete Deck', message: 'Are you sure?', confirmAction: 'deleteDeck', itemId: {{ $deck->id }} })">
+                <x-dropdown-link href="#" wire:click.prevent="$dispatch('openConfirmationModal', { title: 'Delete Deck', message: 'Are you sure you want to permanently delete this deck?', confirmAction: 'deleteDeck', itemId: {{ $deck->id }} })">
                     <i class="fa-solid fa-fw fa-trash-can mr-2 text-gray-400"></i>
                     Delete
                 </x-dropdown-link>

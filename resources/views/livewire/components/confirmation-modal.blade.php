@@ -16,10 +16,10 @@
 
     {{-- Footer Actions --}}
     <div class="flex justify-end space-x-4 mt-6">
-        <button type="button" @click="show = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
+        <button type="button" @click="show = false" class="cursor-pointer px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
             Cancel
         </button>
-        <button type="button" wire:click="confirm" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold text-sm">
+        <button type="button" wire:click="confirm" class="cursor-pointer px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 font-semibold text-sm">
             Confirm Delete
         </button>
     </div>

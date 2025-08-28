@@ -9,7 +9,7 @@
                 Maximum: {{ $deck->cards->count() }} cards
             </p>
             <x-text-input
-                wire:model.blur="studyCardCount"
+                wire:model.live="studyCardCount"
                 id="study-card-count"
                 type="number"
                 min="1"
@@ -29,7 +29,7 @@
 
         {{-- Footer Actions --}}
         <div class="flex justify-end space-x-4 pt-4">
-            <button type="button" @click="show = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
+            <button type="button" @click="show = false" class="cursor-pointer px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
                 Cancel
             </button>
             <button

@@ -5,7 +5,6 @@ use App\Models\Deck;
 use App\Models\User;
 use Illuminate\Routing\Route;
 
-// This hook runs before every test, ensuring $this->request is always a fresh instance.
 beforeEach(function () {
     $this->request = new StoreCardRequest;
 });
@@ -25,30 +24,27 @@ it('passes validation with valid data', function () {
         'answer' => 'Paris',
     ];
 
-    // Notice we use $this->request here
     $validator = validator($data, $this->request->rules());
 
     expect($validator->fails())->toBeFalse();
 });
 
 it('fails validation with invalid data', function (array $data, string $expectedErrorKey) {
-    // And here
     $validator = validator($data, $this->request->rules());
 
     expect($validator->fails())->toBeTrue();
     expect($validator->errors()->toArray())->toHaveKey($expectedErrorKey);
 })->with([
-    'short question' => [['question' => 'Hi', 'answer' => 'Paris'], 'question'],
-    'missing question' => [['answer' => 'Paris'], 'question'],
-    'empty answer' => [['question' => 'A valid question?', 'answer' => ''], 'answer'],
-    'missing answer' => [['question' => 'A valid question?'], 'answer'],
+    [['question' => 'Hi', 'answer' => 'Paris'], 'question'],
+    [['answer' => 'Paris'], 'question'],
+    [['question' => 'A valid question?', 'answer' => ''], 'answer'],
+    [['question' => 'A valid question?'], 'answer'],
 ]);
 
 it('authorizes a user to create a card for their own deck', function () {
     $user = User::factory()->create();
     $deck = Deck::factory()->create(['user_id' => $user->id]);
 
-    // Use $this->request, which was created by the beforeEach hook
     $this->request->setUserResolver(fn () => $user);
     $this->request = mockRequestWithRoute($this->request, $deck);
 
@@ -60,7 +56,6 @@ it('prevents a user from creating a card for another user\'s deck', function () 
     $otherUser = User::factory()->create();
     $deck = Deck::factory()->create(['user_id' => $otherUser->id]);
 
-    // Use $this->request here as well. No more creating a local $request.
     $this->request->setUserResolver(fn () => $user);
     $this->request = mockRequestWithRoute($this->request, $deck);
 

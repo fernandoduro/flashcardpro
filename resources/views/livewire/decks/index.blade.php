@@ -33,13 +33,13 @@
                                 Whether it's for school, work, or personal growth, flashcards are your perfect study companion.
                             </p>
                             <div class="mt-6">
-                                <button type="button" wire:click="$dispatch('openCreateModal')" class="inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                                <button type="button" wire:click="$dispatch('openCreateModal')" class="cursor-pointer inline-flex items-center rounded-md bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
                                     <i class="fa-solid fa-plus -ml-0.5 mr-1.5 h-5 w-5"></i>
                                     Create Your First Deck
                                 </button>
                             </div>
                             <div class="mt-4 text-xs text-gray-400">
-                                <p>💡 Tip: Try our AI card generator to create decks automatically!</p>
+                                <p>💡 Tip: Try our AI card generator to create them automatically!</p>
                             </div>
                         </div>
                     </div>

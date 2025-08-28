@@ -4,7 +4,7 @@
         <div>
             <label for="name-{{ $this->getId() }}" class="block text-sm font-medium text-gray-700">Deck Name</label>
 
-            <x-text-input wire:model.blur="name" type="text" id="name-{{ $this->getId() }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" required autofocus />
+            <x-text-input wire:model.live="name" type="text" id="name-{{ $this->getId() }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" required autofocus />
             @error('name') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
         </div>
 
@@ -39,7 +39,7 @@
 
         {{-- Footer Actions --}}
         <div class="flex justify-end space-x-4 pt-4">
-            <button type="button" @click="show = false" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
+            <button type="button" @click="show = false" class="cursor-pointer px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 font-semibold text-sm">
                 Cancel
             </button>
             <button type="submit"

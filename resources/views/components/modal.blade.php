@@ -36,7 +36,7 @@ $maxWidth = [
         <!-- Modal Header -->
         <div class="flex items-start justify-between p-4 border-b rounded-t">
             <h3 class="text-xl font-bold text-gray-900">{{ $title }}</h3>
-            <button @click="show = false" type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
+            <button @click="show = false" type="button" class="cursor-pointer text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center">
                 <i class="fa-solid fa-xmark fa-lg"></i>
                 <span class="sr-only">Close modal</span>
             </button>

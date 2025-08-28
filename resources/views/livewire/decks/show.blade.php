@@ -17,13 +17,13 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {{-- Main Action Bar --}}
             <div class="mb-8 flex justify-between items-center">
-                <button wire:click="openStudyModal" class="inline-flex items-center gap-x-2 px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-500 transition-colors">
+                <button wire:click="openStudyModal" class="cursor-pointer inline-flex items-center gap-x-2 px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-500 transition-colors">
                     <i class="fa-solid fa-play"></i>
                     Study This Deck
                 </button>
                 <div class="flex items-center space-x-2">
                     <button wire:click="generateAiCards" wire:loading.attr="disabled"
-                            class="inline-flex items-center gap-x-2 px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 transition-colors disabled:opacity-75">
+                            class="cursor-pointer inline-flex items-center gap-x-2 px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 transition-colors disabled:opacity-75">
                         <span wire:loading.remove wire:target="generateAiCards">
                             <i class="fa-solid fa-wand-magic-sparkles"></i>
                             Generate AI Cards
@@ -48,7 +48,7 @@
                         {{-- Action Buttons --}}
                         <div class="absolute top-2 right-2 flex items-center space-x-1">
                             <button wire:click.prevent="$dispatch('openEditCardModal', { cardId: {{ $card->id }} })"
-                                    class="h-8 w-8 flex items-center justify-center rounded-full bg-black/10 text-gray-700 hover:bg-black/20"
+                                    class="cursor-pointer h-8 w-8 flex items-center justify-center rounded-full bg-black/10 text-gray-700 hover:bg-black/20"
                                     title="Edit Card">
                                 <i class="fa-solid fa-fw fa-pen-to-square"></i>
                             </button>
@@ -58,7 +58,7 @@
                                         confirmAction: 'deleteCard',
                                         itemId: {{ $card->id }}
                                     })"
-                                    class="h-8 w-8 flex items-center justify-center rounded-full bg-black/10 text-gray-700 hover:bg-black/20"
+                                    class="cursor-pointer h-8 w-8 flex items-center justify-center rounded-full bg-black/10 text-gray-700 hover:bg-black/20"
                                     title="Delete Card">
                                 <i class="fa-solid fa-fw fa-trash-can"></i>
                             </button>
@@ -80,7 +80,7 @@
                             <h3 class="mt-2 text-sm font-semibold text-gray-900">No cards yet</h3>
                             <p class="mt-1 text-sm text-gray-500">Get started by adding a card to this deck.</p>
                             <div class="mt-6">
-                               <button type="button" wire:click="$dispatch('openCreateCardModal', { deckId: {{ $deck->id }} })" class="inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
+                               <button type="button" wire:click="$dispatch('openCreateCardModal', { deckId: {{ $deck->id }} })" class="cursor-pointer inline-flex items-center rounded-md bg-primary-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-primary-500">
                                     <i class="fa-solid fa-plus -ml-0.5 mr-1.5 h-5 w-5"></i>
                                     Add First Card
                                 </button>
