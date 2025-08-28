@@ -50,7 +50,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div>
             <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
             <div class="mt-1">
-                <input wire:model="name" id="name" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="text" name="name" required autofocus autocomplete="name" />
+                <x-text-input wire:model="name" id="name" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="text" name="name" required autofocus autocomplete="name" />
             </div>
             <x-input-error :messages="$errors->get('name')" class="mt-2" />
         </div>
@@ -59,7 +59,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <div class="mt-1">
-                <input wire:model="email" id="email" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="email" name="email" required autocomplete="username" />
+                <x-text-input wire:model="email" id="email" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="email" name="email" required autocomplete="username" />
             </div>
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
         </div>
@@ -68,7 +68,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div>
             <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
             <div class="mt-1">
-                <input wire:model="password" id="password" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password" required autocomplete="new-password" />
+                <x-text-input wire:model="password" id="password" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password" required autocomplete="new-password" />
             </div>
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
@@ -77,7 +77,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div>
             <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
             <div class="mt-1">
-                <input wire:model="password_confirmation" id="password_confirmation" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password_confirmation" required autocomplete="new-password" />
+                <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password_confirmation" required autocomplete="new-password" />
             </div>
             <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
         </div>

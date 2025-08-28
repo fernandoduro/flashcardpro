@@ -8,13 +8,12 @@
             <p class="text-sm text-gray-500 mb-4">
                 Maximum: {{ $deck->cards->count() }} cards
             </p>
-            <input
+            <x-text-input
                 wire:model.blur="studyCardCount"
                 id="study-card-count"
                 type="number"
                 min="1"
                 max="{{ $deck->cards->count() }}"
-                {{ $deck->cards->count() === 0 ? 'disabled' : '' }}
                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500 disabled:bg-gray-100 disabled:text-gray-500"
                 required
                 autofocus

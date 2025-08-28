@@ -4,13 +4,13 @@
         <div>
             <label for="name-{{ $this->getId() }}" class="block text-sm font-medium text-gray-700">Deck Name</label>
 
-            <input wire:model.blur="name" type="text" id="name-{{ $this->getId() }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" required autofocus>
+            <x-text-input wire:model.blur="name" type="text" id="name-{{ $this->getId() }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" required autofocus />
             @error('name') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
         </div>
 
         {{-- Public Toggle --}}
         <div class="flex items-center">
-            <input wire:model="isPublic" type="checkbox" id="isPublic-{{ $this->getId() }}" class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500">
+            <x-text-input wire:model="isPublic" type="checkbox" id="isPublic-{{ $this->getId() }}" class="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500" />
             <label for="isPublic-{{ $this->getId() }}" class="ml-3 block text-sm font-medium text-gray-700">Make this deck public?</label>
         </div>
 
@@ -30,7 +30,7 @@
                     @endif
                 </div>
                 <div>
-                    <input type="file" wire:model="coverImage" id="coverImage-{{ $this->getId() }}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    <x-text-input type="file" wire:model="coverImage" id="coverImage-{{ $this->getId() }}" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
                     <div wire:loading wire:target="coverImage" class="text-sm text-gray-500 mt-1">Uploading...</div>
                 </div>
             </div>
