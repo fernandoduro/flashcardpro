@@ -11,4 +11,15 @@ if (el) {
     app.component('study-session', StudySession);
 
     app.mount('#app');
+
+    // Add Livewire navigation event listener to reinitialize Vue if needed
+    document.addEventListener('livewire:navigated', () => {
+        // Re-mount Vue app after Livewire navigation if element still exists
+        const newEl = document.getElementById('app');
+        if (newEl && !newEl._v_app) {
+            const newApp = createApp({});
+            newApp.component('study-session', StudySession);
+            newApp.mount('#app');
+        }
+    });
 }

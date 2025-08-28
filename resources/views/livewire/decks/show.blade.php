@@ -17,10 +17,10 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             {{-- Main Action Bar --}}
             <div class="mb-8 flex justify-between items-center">
-                <a href="{{ route('study.show', $deck) }}" class="inline-flex items-center gap-x-2 px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-500 transition-colors">
+                <button wire:click="openStudyModal" class="inline-flex items-center gap-x-2 px-4 py-2 bg-primary-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-500 transition-colors">
                     <i class="fa-solid fa-play"></i>
                     Study This Deck
-                </a>
+                </button>
                 <div class="flex items-center space-x-2">
                     <button wire:click="generateAiCards" wire:loading.attr="disabled"
                             class="inline-flex items-center gap-x-2 px-4 py-2 bg-purple-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-purple-500 transition-colors disabled:opacity-75">
@@ -95,4 +95,5 @@
     {{-- Modals --}}
     <livewire:cards.form />
     <livewire:components.confirmation-modal />
+    @include('livewire.decks.study-config-modal')
 </div>

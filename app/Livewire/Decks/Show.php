@@ -21,6 +21,8 @@ class Show extends Component
 
     public bool $isGenerating = false;
 
+    public int $studyCardCount = 10;
+
     /**
      * Mount the component and authorize the user.
      */
@@ -52,6 +54,71 @@ class Show extends Component
     public function refreshCardList(): void
     {
         $this->deck = $this->deck->fresh()->load('cards');
+    }
+
+    /**
+     * Open the study configuration modal.
+     */
+    public function openStudyModal(): void
+    {
+        $this->authorize('view', $this->deck);
+
+        if ($this->deck->cards->count() === 0) {
+            $this->dispatch('flash-message', [
+                'type' => 'error',
+                'message' => 'This deck has no cards to study.',
+            ]);
+
+            return;
+        }
+
+        $this->studyCardCount = min(10, $this->deck->cards->count());
+        $this->resetValidation();
+        $this->dispatch('open-modal', 'study-config');
+    }
+
+    /**
+     * Start the study session with the configured number of cards.
+     */
+    public function startStudySession(): void
+    {
+        $this->validate([
+            'studyCardCount' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:'.$this->deck->cards->count(),
+            ],
+        ]);
+
+        $this->authorize('view', $this->deck);
+
+        // Close modal first, then redirect
+        $this->dispatch('close-modal', 'study-config');
+
+        // Use Livewire redirect to ensure proper navigation
+        $this->redirect(
+            route('study.show', [
+                'deck' => $this->deck->id,
+                'count' => $this->studyCardCount,
+            ]),
+            navigate: false // Force full page reload
+        );
+    }
+
+    /**
+     * Get the validation rules for the study configuration.
+     */
+    public function rules(): array
+    {
+        return [
+            'studyCardCount' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:'.$this->deck->cards->count(),
+            ],
+        ];
     }
 
     public function generateAiCards(): void

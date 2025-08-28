@@ -7,6 +7,9 @@
 
     <div class="py-12" id="app">
         {{-- Use the @json directive for safer JSON encoding --}}
-        <study-session :deck='@json($deck)'></study-session>
+        <study-session
+            :deck='@json($deck)'
+            :requested-card-count='@json($requestedCardCount)'
+        ></study-session>
     </div>
 </x-app-layout>

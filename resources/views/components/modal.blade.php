@@ -30,7 +30,7 @@ $maxWidth = [
 
     <!-- Modal Panel -->
     <div x-show="show" x-transition
-         @click.away="show = false"
+         @mousedown.outside="show = false"
          class="relative w-full bg-white rounded-lg shadow-xl {{ $maxWidth }}">
 
         <!-- Modal Header -->

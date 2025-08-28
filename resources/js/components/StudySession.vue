@@ -22,6 +22,9 @@
             <i class="fa-solid fa-circle-check text-6xl text-green-500"></i>
             <h2 class="mt-4 text-3xl font-bold text-gray-800">Session Complete!</h2>
             <p class="mt-2 text-lg text-gray-600">You got <span class="font-bold text-primary-600">{{ correctAnswers }}</span> out of <span class="font-bold">{{ cards.length }}</span> correct.</p>
+            <p v-if="requestedCardCount && requestedCardCount.value < deck.cards_count" class="text-sm text-gray-500 mt-2">
+                You studied {{ requestedCardCount.value }} cards from this deck of {{ deck.cards_count }} total cards.
+            </p>
             <a :href="deckUrl" class="mt-6 inline-flex items-center px-6 py-3 bg-gray-700 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-gray-600">
                 Back to Deck
             </a>
@@ -32,7 +35,12 @@
             <!-- Header with Progress Bar -->
             <div class="p-6 border-b border-gray-200">
                 <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-gray-800">{{ deck.name }}</h2>
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-800">{{ deck.name }}</h2>
+                        <p v-if="requestedCardCount && requestedCardCount.value < deck.cards_count" class="text-xs text-gray-500 mt-1">
+                            Studying {{ requestedCardCount.value }} of {{ deck.cards_count }} cards
+                        </p>
+                    </div>
                     <span class="text-sm font-semibold text-gray-500">{{ currentCardIndex + 1 }} / {{ cards.length }}</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -47,8 +55,15 @@
                         <!-- Question View -->
                         <div v-if="!answerVisible">
                             <p class="text-2xl sm:text-3xl text-gray-700">{{ currentCard.question }}</p>
-                            <button @click="revealAnswer" type="button" class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500">
-                                Reveal Answer
+                            <button
+                                @click="revealAnswer"
+                                :disabled="isRevealingAnswer"
+                                type="button"
+                                class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                            >
+                                <i v-if="isRevealingAnswer" class="fa-solid fa-spinner fa-spin mr-2"></i>
+                                <span v-if="isRevealingAnswer">Revealing...</span>
+                                <span v-else>Reveal Answer</span>
                             </button>
                         </div>
 
@@ -57,11 +72,27 @@
                             <p class="text-xl text-gray-500 mb-2">{{ currentCard.question }}</p>
                             <p class="text-3xl sm:text-4xl font-bold text-green-600 mb-8">{{ currentCard.answer }}</p>
                             <div class="flex flex-col sm:flex-row justify-center gap-4">
-                                <button @click="recordResult(true)" type="button" class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600">
-                                    <i class="fa-solid fa-check mr-2"></i> I Got It Right
+                                <button
+                                    @click="recordResult(true)"
+                                    :disabled="isSubmittingResult"
+                                    type="button"
+                                    class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                >
+                                    <i v-if="isSubmittingResult" class="fa-solid fa-spinner fa-spin mr-2"></i>
+                                    <i v-else class="fa-solid fa-check mr-2"></i>
+                                    <span v-if="isSubmittingResult">Submitting...</span>
+                                    <span v-else>I Got It Right</span>
                                 </button>
-                                <button @click="recordResult(false)" type="button" class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300">
-                                    <i class="fa-solid fa-xmark mr-2"></i> Maybe Next Time
+                                <button
+                                    @click="recordResult(false)"
+                                    :disabled="isSubmittingResult"
+                                    type="button"
+                                    class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                >
+                                    <i v-if="isSubmittingResult" class="fa-solid fa-spinner fa-spin mr-2"></i>
+                                    <i v-else class="fa-solid fa-xmark mr-2"></i>
+                                    <span v-if="isSubmittingResult">Submitting...</span>
+                                    <span v-else>Maybe Next Time</span>
                                 </button>
                             </div>
                         </div>
@@ -79,6 +110,10 @@ import axios from 'axios';
 
 const props = defineProps({
     deck: Object,
+    requestedCardCount: {
+        type: Number,
+        default: null,
+    },
 });
 
 const deckUrl = `/decks/${props.deck.id}`;
@@ -92,6 +127,8 @@ const answerVisible = ref(false);
 const sessionFinished = ref(false);
 const correctAnswers = ref(0);
 const studyId = ref(null);
+const isSubmittingResult = ref(false);
+const isRevealingAnswer = ref(false);
 
 // Computed Properties
 const currentCard = computed(() => cards.value[currentCardIndex.value]);
@@ -101,6 +138,12 @@ const progressPercentage = computed(() => {
         return 0;
     }
     return ((currentCardIndex.value + 1) / cards.value.length) * 100;
+});
+
+// Ensure requestedCardCount is always a number (handles string conversion)
+const requestedCardCount = computed(() => {
+    const count = props.requestedCardCount;
+    return count !== null ? parseInt(count, 10) : null;
 });
 
 // Helper function to safely get API token
@@ -195,8 +238,19 @@ onMounted(async () => {
             throw new Error('Invalid response from cards fetch - missing data array');
         }
 
-        cards.value = cardsResponse.data.data;
+        let fetchedCards = cardsResponse.data.data;
 
+        // Shuffle the cards to randomize the order
+        fetchedCards = fetchedCards.sort(() => Math.random() - 0.5);
+
+        // Limit the number of cards based on requestedCardCount
+        if (requestedCardCount.value && requestedCardCount.value > 0) {
+            // Ensure we don't try to slice more cards than available
+            const maxCards = Math.min(requestedCardCount.value, fetchedCards.length);
+            fetchedCards = fetchedCards.slice(0, maxCards);
+        }
+
+        cards.value = fetchedCards;
 
         if (cards.value.length === 0) {
             sessionFinished.value = true;
@@ -249,11 +303,29 @@ const retryApiCall = async (apiCall, maxRetries = 3, operation = 'operation') =>
 };
 
 // Methods
-const revealAnswer = () => {
+const revealAnswer = async () => {
+    // Prevent multiple clicks while revealing
+    if (isRevealingAnswer.value) {
+        return;
+    }
+
+    isRevealingAnswer.value = true;
+
+    // Add a small delay to prevent rapid clicking and provide visual feedback
+    await new Promise(resolve => setTimeout(resolve, 300));
+
     answerVisible.value = true;
+    isRevealingAnswer.value = false;
 };
 
 const recordResult = async (isCorrect) => {
+    // Prevent multiple clicks while submitting
+    if (isSubmittingResult.value) {
+        return;
+    }
+
+    isSubmittingResult.value = true;
+
     if (isCorrect) {
         correctAnswers.value++;
     }
@@ -262,6 +334,7 @@ const recordResult = async (isCorrect) => {
     if (!studyId.value) {
         console.error("No study session ID available");
         error.value = "Study session not properly initialized. Please refresh and try again.";
+        isSubmittingResult.value = false;
         return;
     }
 
@@ -269,6 +342,7 @@ const recordResult = async (isCorrect) => {
     if (!currentCard.value || !currentCard.value.id) {
         console.error("No current card available");
         error.value = "No card available to record result for.";
+        isSubmittingResult.value = false;
         return;
     }
 
@@ -278,7 +352,14 @@ const recordResult = async (isCorrect) => {
             card_id: currentCard.value.id,
             is_correct: isCorrect
         });
-        nextCard();
+
+        // Check if this is the last card before moving to next
+        // Don't reset loading state here - let nextCard/finishSession handle it
+        if (currentCardIndex.value >= cards.value.length - 1) {
+            finishSession();
+        } else {
+            nextCard();
+        }
     } catch (err) {
         console.error("Failed to record result:", err);
 
@@ -308,6 +389,8 @@ const recordResult = async (isCorrect) => {
         } else {
             error.value = err.response?.data?.message || "Could not save your answer. Please check your connection and try again.";
         }
+        // Reset loading state on error
+        isSubmittingResult.value = false;
     }
 };
 
@@ -315,6 +398,10 @@ const nextCard = () => {
     answerVisible.value = false;
     if (currentCardIndex.value < cards.value.length - 1) {
         currentCardIndex.value++;
+        // Keep loading state active during transition
+        setTimeout(() => {
+            isSubmittingResult.value = false;
+        }, 400); // Slightly longer than transition duration
     } else {
         finishSession();
     }
@@ -324,10 +411,17 @@ const finishSession = async () => {
     try {
         await apiClient.patch(`/studies/${studyId.value}/complete`);
         sessionFinished.value = true;
+        // Keep loading state active during transition to completion screen
+        setTimeout(() => {
+            isSubmittingResult.value = false;
+        }, 600); // Allow time for completion screen transition
     } catch (err) {
         console.error("Failed to complete session:", err);
         // This is a non-critical error, so we can still show the finished screen
         sessionFinished.value = true;
+        setTimeout(() => {
+            isSubmittingResult.value = false;
+        }, 600);
     }
 };
 </script>
