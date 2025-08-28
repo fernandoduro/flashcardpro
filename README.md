@@ -87,24 +87,24 @@ composer install
 The `docker-compose.yml` is configured to use the required PHP and MySQL versions. You should have 2 containers running (`flashcardpro` and `mysql`).
 
 ```bash
-sail up -d
+./vendor/bin/sail up -d
 ```
 
 **5. Finalize Setup**
 Run these commands to generate the application key, run migrations, and link the storage directory.
 
 ```bash
-sail artisan key:generate
-sail artisan migrate:fresh --seed
-sail artisan storage:link
+./vendor/bin/sail artisan key:generate
+./vendor/bin/sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan storage:link
 ```
 
 **6. Build Frontend Assets**
 Install Node.js dependencies and start the Vite development server.
 
 ```bash
-sail npm install
-sail npm run dev
+./vendor/bin/sail npm install
+./vendor/bin/sail npm run dev
 ```
 
 *(Note: You will need to keep the `npm run dev` process running in its own dedicated terminal while you use the application).*
@@ -165,18 +165,18 @@ The project has a comprehensive test suite. To run all tests, execute the follow
 #Pest tests 
 ```bash
 cp .env.testing.example .env.testing
-sail artisan key:generate --env=testing
-sail test
+./vendor/bin/sail artisan key:generate --env=testing
+./vendor/bin/sail test
 ```
 
 #Laravel Dusk
 ```bash
 cp .env.dusk.local.example .env.dusk.local
-sail artisan key:generate --env=dusk.local
-sail npm run build
-sail run touch /var/www/html/database/dusk.sqlite
-sail run chown -R sail:sail /var/www/html/database/dusk.sqlite
-sail dusk
+./vendor/bin/sail artisan key:generate --env=dusk.local
+./vendor/bin/sail npm run build
+./vendor/bin/sail run touch /var/www/html/database/dusk.sqlite
+./vendor/bin/sail run chown -R sail:sail /var/www/html/database/dusk.sqlite
+./vendor/bin/sail dusk
 ```
 *(Note: Drop your `npm run dev` process, or it will overwrite built JS and CSS files, breaking the test. Dusk will also temporarily replace your .env with the .env.dusk.local).*
 
@@ -235,17 +235,17 @@ Before diving into specific issues, verify these essentials:
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-sail artisan optimize:clear
+./vendor/bin/sail artisan optimize:clear
 
 # Restart containers to ensure fresh state
-sail down
-sail up -d
+./vendor/bin/sail down
+./vendor/bin/sail up -d
 
 # Regenerate autoloader
-sail composer dump-autoload
+./vendor/bin/sail composer dump-autoload
 
 # If still failing, check routes
-sail artisan route:list --path=api
+./vendor/bin/sail artisan route:list --path=api
 ```
 
 **Prevention:** Always run `php artisan optimize:clear` after making routing changes.
@@ -260,17 +260,17 @@ sail artisan route:list --path=api
 **Solutions:**
 ```bash
 # 1. Verify API token generation
-sail tinker
+./vendor/bin/sail tinker
 # In tinker:
 $user = App\Models\User::first();
 $user->tokens()->delete(); // Clear old tokens
 $user->createToken('test')->plainTextToken;
 
 # 2. Check if Vite dev server is running
-sail run ps aux | grep node
+./vendor/bin/sail run ps aux | grep node
 
 # 3. Rebuild assets if needed
-sail npm run build
+./vendor/bin/sail npm run build
 
 # 4. Clear browser cache and localStorage
 # Open browser dev tools → Application → Local Storage → Clear
@@ -288,7 +288,7 @@ sail npm run build
 **Solutions:**
 ```bash
 # 1. Check API key configuration
-sail tinker
+./vendor/bin/sail tinker
 # In tinker:
 dd(env('GEMINI_API_KEY')); // Should not be null
 
@@ -302,7 +302,7 @@ curl -H "x-goog-api-key: YOUR_API_KEY" \
      -d '{"contents":[{"parts":[{"text":"Hello"}]}]}'
 
 # 4. Check application logs
-sail run tail -f storage/logs/laravel.log
+./vendor/bin/sail run tail -f storage/logs/laravel.log
 ```
 
 **Prevention:** Always set either `GEMINI_API_KEY` or `OPENAI_API_KEY` in your `.env` file.
@@ -317,21 +317,21 @@ sail run tail -f storage/logs/laravel.log
 **Solutions:**
 ```bash
 # 1. Check database service status
-sail run ps mysql
+./vendor/bin/sail run ps mysql
 
 # 2. Verify database credentials in .env
 cat .env | grep DB_
 
 # 3. Test database connection
-sail tinker
+./vendor/bin/sail tinker
 # In tinker:
 DB::connection()->getPdo();
 
 # 4. Reset database if needed
-sail artisan migrate:fresh --seed
+./vendor/bin/sail artisan migrate:fresh --seed
 
 # 5. Check MySQL logs
-sail logs mysql
+./vendor/bin/sail logs mysql
 ```
 
 **Prevention:** Ensure Docker has sufficient resources and no port conflicts.
@@ -346,13 +346,13 @@ sail logs mysql
 **Solutions:**
 ```bash
 # 1. Install dependencies
-sail npm install
+./vendor/bin/sail npm install
 
 # 2. Start Vite dev server
 npm run dev
 
 # 3. Build for production
-sail npm run build
+./vendor/bin/sail npm run build
 
 # 4. Clear Vite cache
 rm -rf node_modules/.vite
@@ -373,15 +373,15 @@ netstat -tulpn | grep 5173
 **Solutions:**
 ```bash
 # 1. Fix ownership (run as root)
-docker-compose exec -u root flashcardpro chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
+./vendor/bin/sail run chown -R sail:sail /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 2. Fix permissions
-sail run chmod -R 755 storage
-sail run chmod -R 755 bootstrap/cache
+./vendor/bin/sail run chmod -R 755 storage
+./vendor/bin/sail run chmod -R 755 bootstrap/cache
 
 # 3. Restart containers
-sail down
-sail up -d
+./vendor/bin/sail down
+./vendor/bin/sail up -d
 ```
 
 **Prevention:** Configure proper user permissions in docker-compose.yml for Windows development.
@@ -396,18 +396,18 @@ sail up -d
 **Solutions:**
 ```bash
 # Clear all Laravel caches
-sail artisan optimize:clear
+./vendor/bin/sail artisan optimize:clear
 
 # Clear specific caches
-sail artisan config:clear
-sail artisan route:clear
-sail artisan view:clear
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail artisan route:clear
+./vendor/bin/sail artisan view:clear
 
 # Regenerate autoloader
-sail composer dump-autoload
+./vendor/bin/sail composer dump-autoload
 
 # Restart PHP-FPM if using production
-sail artisan optimize
+./vendor/bin/sail artisan optimize
 ```
 
 **Prevention:** Run `php artisan optimize:clear` after any structural changes.
@@ -422,7 +422,7 @@ sail artisan optimize
 **Solutions:**
 ```bash
 # 1. Check slow queries
-sail tinker
+./vendor/bin/sail tinker
 # In tinker:
 DB::listen(function ($query) {
     if ($query->time > 1000) { // Log queries slower than 1s
@@ -439,10 +439,10 @@ DB::listen(function ($query) {
 DB_LOG_QUERIES=true
 
 # 3. Check memory usage
-sail php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
+./vendor/bin/sail php -r "echo 'Memory: ' . memory_get_peak_usage(true)/1024/1024 . ' MB' . PHP_EOL;"
 
 # 4. Optimize images and assets
-sail artisan storage:link
+./vendor/bin/sail artisan storage:link
 ```
 
 **Prevention:** Use computed property caching and eager loading as implemented in the Statistics component.
@@ -461,14 +461,14 @@ cat .env | grep APP_ENV
 cat .env | grep APP_DEBUG
 
 # 2. Clear configuration cache
-sail artisan config:clear
-sail artisan config:cache
+./vendor/bin/sail artisan config:clear
+./vendor/bin/sail artisan config:cache
 
 # 3. Check cached configuration
-sail artisan config:show app
+./vendor/bin/sail artisan config:show app
 
 # 4. Regenerate application key
-sail artisan key:generate
+./vendor/bin/sail artisan key:generate
 ```
 
 **Prevention:** Use `php artisan config:cache` in production but `php artisan config:clear` during development.
@@ -479,14 +479,14 @@ If you encounter an issue not covered here:
 
 1. **Check the logs:**
    ```bash
-   sail run tail -f storage/logs/laravel.log
-   sail logs flashcardpro
+   ./vendor/bin/sail run tail -f storage/logs/laravel.log
+   ./vendor/bin/sail logs flashcardpro
    ```
 
 2. **Verify your environment:**
    ```bash
-   sail artisan about
-   sail composer show
+   ./vendor/bin/sail artisan about
+   ./vendor/bin/sail composer show
    ```
 
 3. **Test API endpoints:**
@@ -498,11 +498,11 @@ If you encounter an issue not covered here:
 4. **Common debugging commands:**
    ```bash
    # Full system reset
-   sail down -v
-   sail up -d
+   ./vendor/bin/sail down -v
+   ./vendor/bin/sail up -d
    composer install
-   sail artisan migrate:fresh --seed
-   sail npm install && npm run dev
+   ./vendor/bin/sail artisan migrate:fresh --seed
+   ./vendor/bin/sail npm install && npm run dev
    ```
 
 **Remember:** Most issues can be resolved by clearing caches and restarting services. Always check logs first when debugging!
