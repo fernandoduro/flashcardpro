@@ -37,7 +37,7 @@
                 wire:loading.attr="disabled"
                 wire:target="startStudySession"
                 {{ $deck->cards->count() === 0 ? 'disabled' : '' }}
-                class="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-500 font-semibold text-sm flex items-center disabled:opacity-75 disabled:cursor-not-allowed"
+                class="cursor-pointer px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-500 font-semibold text-sm flex items-center disabled:opacity-75 disabled:cursor-not-allowed"
             >
                 {{-- Loading Spinner --}}
                 <div wire:loading wire:target="startStudySession" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white">

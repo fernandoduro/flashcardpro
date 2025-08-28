@@ -59,7 +59,7 @@
                                 @click="revealAnswer"
                                 :disabled="isRevealingAnswer"
                                 type="button"
-                                class="mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                class="cursor-pointer mt-8 inline-flex items-center px-6 py-3 bg-primary-600 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                             >
                                 <i v-if="isRevealingAnswer" class="fa-solid fa-spinner fa-spin mr-2"></i>
                                 <span v-if="isRevealingAnswer">Revealing...</span>
@@ -76,7 +76,7 @@
                                     @click="recordResult(true)"
                                     :disabled="isSubmittingResult"
                                     type="button"
-                                    class="inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                    class="cursor-pointer inline-flex items-center justify-center px-6 py-3 bg-green-500 border border-transparent rounded-md font-semibold text-white uppercase tracking-widest hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                                 >
                                     <i v-if="isSubmittingResult" class="fa-solid fa-spinner fa-spin mr-2"></i>
                                     <i v-else class="fa-solid fa-check mr-2"></i>
@@ -87,7 +87,7 @@
                                     @click="recordResult(false)"
                                     :disabled="isSubmittingResult"
                                     type="button"
-                                    class="inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+                                    class="cursor-pointer inline-flex items-center justify-center px-6 py-3 bg-gray-200 border border-transparent rounded-md font-semibold text-gray-700 uppercase tracking-widest hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
                                 >
                                     <i v-if="isSubmittingResult" class="fa-solid fa-spinner fa-spin mr-2"></i>
                                     <i v-else class="fa-solid fa-xmark mr-2"></i>
