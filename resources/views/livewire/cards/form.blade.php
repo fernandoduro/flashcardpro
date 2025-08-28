@@ -3,18 +3,18 @@
         {{-- Question --}}
         <div>
             <label for="question-{{ $this->getId() }}" class="block text-sm font-medium text-gray-700">Question</label>
-            <textarea wire:model.blur="question" id="question-{{ $this->getId() }}" rows="3"
+            <x-textarea-input wire:model.blur="question" id="question-{{ $this->getId() }}" rows="3"
                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      required autofocus></textarea>
+                      required autofocus />
             @error('question') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
         </div>
 
         {{-- Answer --}}
         <div>
             <label for="answer-{{ $this->getId() }}" class="block text-sm font-medium text-gray-700">Answer</label>
-            <textarea wire:model.blur="answer" id="answer-{{ $this->getId() }}" rows="3"
+            <x-textarea-input wire:model.blur="answer" id="answer-{{ $this->getId() }}" rows="3"
                       class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                      required></textarea>
+                      required />
             @error('answer') <span class="text-red-500 text-sm mt-1">{{ $message }}</span> @enderror
         </div>
 

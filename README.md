@@ -64,8 +64,8 @@ FlashcardPro is a full-stack web application designed to help users create, mana
 This project is configured to run seamlessly with Laravel Sail (Docker).
 
 **Prerequisites:**
-- Docker Desktop installed and running.
-- A command-line terminal (like PowerShell on Windows).
+- Docker Desktop or docker compose installed and running.
+- A command-line terminal.
 
 ---
 

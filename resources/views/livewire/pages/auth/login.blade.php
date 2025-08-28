@@ -41,7 +41,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div>
             <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
             <div class="mt-1">
-                <input wire:model="form.email" id="email" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="email" name="email" required autofocus autocomplete="username" />
+                <x-text-input wire:model="form.email" id="email" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="email" name="email" required autofocus autocomplete="username" />
             </div>
             <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
         </div>
@@ -57,14 +57,14 @@ new #[Layout('layouts.guest')] class extends Component
                 </div>
             </div>
             <div class="mt-1">
-                <input wire:model="form.password" id="password" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password" required autocomplete="current-password" />
+                <x-text-input wire:model="form.password" id="password" class="block w-full border-gray-300 rounded-md shadow-sm focus:border-primary-500 focus:ring-primary-500" type="password" name="password" required autocomplete="current-password" />
             </div>
              <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
         </div>
 
         <!-- Remember Me -->
         <div class="flex items-center">
-            <input id="remember" type="checkbox" wire:model="form.remember" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+            <x-text-input id="remember" type="checkbox" wire:model="form.remember" class="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
             <label for="remember" class="ms-2 block text-sm text-gray-600">
                 Remember me
             </label>

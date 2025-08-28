@@ -66,9 +66,9 @@
 
                         {{-- Card Content --}}
                         <div class="flex flex-col h-full space-y-2 mt-6">
-                            <p class="font-semibold text-gray-800">{{ $card->question }}</p>
+                            <p class="font-semibold text-gray-800 break-words">{{ $card->question }}</p>
                             <hr class="border-gray-300/60">
-                            <p class="text-gray-600 flex-grow">{{ $card->answer }}</p>
+                            <p class="text-gray-600 flex-grow break-words">{{ $card->answer }}</p>
                         </div>
                     </li>
                 @empty
